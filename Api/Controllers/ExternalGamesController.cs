@@ -4,7 +4,7 @@ using Application.Abstraction.ExternalServices;
 using Application.Service;
 using Contracts.Game.Response;
 
-namespace TheFrogGames.Api.Controllers
+namespace Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
