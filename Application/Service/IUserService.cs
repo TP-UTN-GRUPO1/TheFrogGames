@@ -12,4 +12,5 @@ public interface IUserService
     bool ParcialUpdateUser(int id, ParcialUpdateUserRequest user);
     bool Update(int id, UpdateUserRequest user);
     bool Delete(int id);
+    bool SoftDeleteUser(int id, SoftDeleteUserRequest request);
 }

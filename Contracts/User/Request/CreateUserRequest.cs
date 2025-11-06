@@ -13,10 +13,8 @@ public class CreateUserRequest
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "La fecha de nacimiento es requerida")]
-    public DateTime Date { get; set; }
+    public DateOnly BirthDate { get; set; }
     [Required(ErrorMessage = "Contraseña requerida")]
     public string Password { get; set; } = string.Empty;
-
-    public int RoleId { get; set; } = 3;
 
 }

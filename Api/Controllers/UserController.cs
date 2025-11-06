@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Service;
 using Contracts.User.Response;
 using Domain.Entities;
+using System.Security.Claims;
 
 
 namespace Api.Controllers;
@@ -18,7 +19,7 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
+   [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
     [HttpGet]
     public ActionResult<List<UserResponse>> GetAllUsers()
     {
@@ -29,10 +30,17 @@ public class UserController : ControllerBase
         }
         return Ok(usersList);
     }
+    [Authorize]
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
-        var user = _userService.GetById(id);
+        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+        var tokenUserId = User.FindFirst("userId")?.Value;
+        if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin) && tokenUserId != id.ToString())
+        {
+            return StatusCode(403,"No tenes permisos para ver otros usuarios");
+        }
+            var user = _userService.GetById(id);
 
         return Ok(user);
     }
@@ -50,17 +58,17 @@ public class UserController : ControllerBase
     }
 
 
-    [HttpPatch("{id}/status")]
-    public ActionResult UpdateUserStatus([FromRoute] int id, [FromBody] ParcialUpdateUserRequest user)
-    {
-        user.Id = id;
-        var isActive = _userService.UpdateUserStatus(user);
-        if (!isActive)
-        {
-            return Conflict("No se puede dar de baja al usuario");
-        }
-        return NoContent();
-    }
+    //[HttpPatch("{id}/status")]
+    //public ActionResult UpdateUserStatus([FromRoute] int id, [FromBody] ParcialUpdateUserRequest user)
+    //{
+    //    user.Id = id;
+    //    var isActive = _userService.UpdateUserStatus(user);
+    //    if (!isActive)
+    //    {
+    //        return Conflict("No se puede dar de baja al usuario");
+    //    }
+    //    return NoContent();
+    //}
 
     [HttpPatch("{id}")]
     public ActionResult ParcialUpdateUser([FromRoute] int id, [FromBody] ParcialUpdateUserRequest user)
@@ -85,6 +93,18 @@ public class UserController : ControllerBase
             return Conflict("Usuario no se pudo actualizar");
         }
 
+        return NoContent();
+    }
+
+    [HttpDelete("{id}/soft")]
+    public ActionResult SoftDeleteUser(int id)
+    {
+        var request = new SoftDeleteUserRequest { Id = id, IsDeleted = false };
+        var result = _userService.SoftDeleteUser(id, request);
+        if (!result)
+        {
+            return NotFound("Error al eliminar el usuario");
+        }
         return NoContent();
     }
 

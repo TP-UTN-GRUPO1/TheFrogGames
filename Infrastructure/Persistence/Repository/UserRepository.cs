@@ -2,6 +2,7 @@
 using Application.Abstraction;
 using Contracts.User.Request;
 using Domain.Entities;
+using Application.Helpers;
 
 namespace Infrastructure.Persistence.Repository;
 
@@ -16,7 +17,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
     {
         return _context.Users
             .Include(x => x.Role)
-            .FirstOrDefault(x => x.Email == request.Email && x.Password == request.Password);
+            .FirstOrDefault(x => x.Email == request.Email && x.Password ==HashHelper.ComputeHash(request.Password));
     }
     public bool UpdateUserStatus(User user)
     {

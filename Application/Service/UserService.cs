@@ -2,6 +2,7 @@
 using Application.Abstraction;
 using Contracts.User.Response;
 using Domain.Entities;
+using Application.Helpers;
 
 namespace Application.Service;
 
@@ -22,20 +23,21 @@ public class UserService : IUserService
         {
             CompleteName = completeName,
             Email = user.Email,
-            Date = user.Date,
-            IsActive = user.IsActive
+            BirthDate = user.BirthDate,
+            IsDeleted = user.IsDeleted
         };
     }
     public bool Create(CreateUserRequest user)
     {
+        string hashedPassword = HashHelper.ComputeHash(user.Password);
         var newUser = new User
         {
             Name = user.Name,
             LastName = user.LastName,
             Email = user.Email,
-            Date = user.Date,
-            Password = user.Password,
-            RoleId = user.RoleId = 3
+            BirthDate = user.BirthDate,
+            Password = hashedPassword,
+            RoleId = 3
         };
         return _userRepository.Create(newUser);
     }
@@ -45,14 +47,14 @@ public class UserService : IUserService
 
         var userList = _userRepository
             .GetAll()
-            .Where(u => u.IsActive)
+            .Where(u => u.IsDeleted)
             .Select(u => new UserResponse
             {
                 Id = u.Id.ToString(),
                 CompleteName = $"{u.Name} {u.LastName}",
                 Email = u.Email,
-                Date = u.Date,
-                IsActive = u.IsActive,
+                BirthDate = u.BirthDate,
+                IsDeleted = u.IsDeleted,
                 RoleId = u.RoleId,
 
             }).ToList();
@@ -68,7 +70,7 @@ public class UserService : IUserService
             return false;
         }
 
-        user.IsActive = !user.IsActive;
+        user.IsDeleted = !user.IsDeleted;
 
         return _userRepository.UpdateUserStatus(user);
     }
@@ -85,6 +87,24 @@ public class UserService : IUserService
         ExistingUser.LastName = user.LastName ?? ExistingUser.LastName;
 
         return _userRepository.ParcialUpdateUser(ExistingUser);
+    }
+    public bool SoftDeleteUser(int id, SoftDeleteUserRequest request)
+    {
+        var user = _userRepository.GetById(id, trackChanges: true);
+        if(user == null)
+        {
+            return false;
+            throw new Exception($"Usuario con ID {id} no encontrado.");
+        }
+        user.IsDeleted = request.IsDeleted;
+
+        bool success = _userRepository.Update(user);
+
+        if(!success)
+        {
+            throw new ApplicationException("Error al actualizar el estado del usuario.");
+        }
+        return true;
     }
     public bool Update(int id, UpdateUserRequest user)
     {

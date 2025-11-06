@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(TheFrogGamesDbContext))]
-    partial class TheFrogGamesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251105184528_Update user entity IsActive to IsDeleted")]
+    partial class UpdateuserentityIsActivetoIsDeleted
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.21");
@@ -164,13 +167,13 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("BirthDate")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("City")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Country")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -208,34 +211,34 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            BirthDate = new DateOnly(2000, 1, 1),
+                            Date = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "sysadmin@demo.com",
                             IsDeleted = true,
                             LastName = "SysAdmin",
                             Name = "SysAdmin",
-                            Password = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+                            Password = "1234",
                             RoleId = 1
                         },
                         new
                         {
                             Id = 2,
-                            BirthDate = new DateOnly(2000, 1, 1),
+                            Date = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@demo.com",
                             IsDeleted = true,
                             LastName = "Admin",
                             Name = "Admin",
-                            Password = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+                            Password = "1234",
                             RoleId = 2
                         },
                         new
                         {
                             Id = 3,
-                            BirthDate = new DateOnly(2000, 1, 1),
+                            Date = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "user@demo.com",
                             IsDeleted = true,
                             LastName = "User",
                             Name = "User",
-                            Password = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+                            Password = "1234",
                             RoleId = 3
                         });
                 });
