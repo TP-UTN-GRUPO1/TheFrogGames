@@ -16,6 +16,8 @@ namespace Application.Abstraction
 
         int Save();
 
-       
+        Task<IEnumerable<T>> GetAllAsync();
+        Task AddAsync(T entity);
+
     }
 }

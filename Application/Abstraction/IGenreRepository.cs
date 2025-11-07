@@ -4,5 +4,7 @@ namespace Application.Abstraction
 {
     public interface IGenreRepository : IBaseRepository<Genre>
     {
+   
     }
+
 }

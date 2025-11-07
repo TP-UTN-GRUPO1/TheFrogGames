@@ -11,6 +11,7 @@ using Infrastructure.ExternalServices;
 using Infrastructure.Persistence.Repository;
 using Infrastructure.Options;
 using Infrastructure.Persistence;
+using Infrastructure.Seeding;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -72,8 +73,15 @@ builder.Services.Configure<GamesApiOptions>(
 builder.Configuration.GetSection("GamesApiOptions"));
 
 builder.Services.AddHttpClient<IExternalGameService, GamesFromFirebaseService>();
+builder.Services.AddScoped<GameRepository>();
+builder.Services.AddScoped<GamesSeeder>();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<GamesSeeder>();
+    await seeder.SeedAsync();
+}
 
 if (app.Environment.IsDevelopment())
 {

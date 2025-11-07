@@ -8,7 +8,12 @@ namespace Infrastructure.Persistence.Repository
         public GenreRepository(TheFrogGamesDbContext context) : base(context)
         {
         }
-        
+        public async Task AddAsync(Genre genre)
+        {
+            await _context.Genres.AddAsync(genre);
+
+        }
+
 
 
     }

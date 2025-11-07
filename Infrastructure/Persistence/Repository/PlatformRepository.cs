@@ -7,10 +7,15 @@ namespace Infrastructure.Persistence.Repository
     {
         public PlatformRepository(TheFrogGamesDbContext context) : base(context)
         {
+         
+
         }
 
+        public async Task AddAsync(Platform platform)
+        {
+            await _context.Platforms.AddAsync(platform);
 
-
+        }
     }
 
 

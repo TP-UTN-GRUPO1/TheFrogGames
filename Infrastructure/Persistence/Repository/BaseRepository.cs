@@ -102,5 +102,14 @@ namespace Infrastructure.Persistence.Repository
         {
             return await _context.SaveChangesAsync();
         }
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await _dbSet.AsNoTracking().ToListAsync();
+        }
+
+        public async Task AddAsync(T entity)
+        {
+            await _dbSet.AddAsync(entity);
+        }
     }
 }
