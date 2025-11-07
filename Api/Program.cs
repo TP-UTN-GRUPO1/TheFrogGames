@@ -26,7 +26,7 @@ builder.Services.AddCors(options =>
                       });
 });
 
-builder.Services.AddDbContext<TheFrogGamesDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<TheFrogGamesDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
  builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
