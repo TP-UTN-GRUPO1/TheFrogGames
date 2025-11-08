@@ -50,17 +50,17 @@ public class UserController : ControllerBase
     }
 
 
-    [HttpPatch("{id}/status")]
-    public ActionResult UpdateUserStatus([FromRoute] int id, [FromBody] ParcialUpdateUserRequest user)
-    {
-        user.Id = id;
-        var isActive = _userService.UpdateUserStatus(user);
-        if (!isActive)
-        {
-            return Conflict("No se puede dar de baja al usuario");
-        }
-        return NoContent();
-    }
+    //[HttpPatch("{id}/status")]
+    //public ActionResult UpdateUserStatus([FromRoute] int id, [FromBody] ParcialUpdateUserRequest user)
+    //{
+    //    user.Id = id;
+    //    var isActive = _userService.UpdateUserStatus(user);
+    //    if (!isActive)
+    //    {
+    //        return Conflict("No se puede dar de baja al usuario");
+    //    }
+    //    return NoContent();
+    //}
 
     [HttpPatch("{id}")]
     public ActionResult ParcialUpdateUser([FromRoute] int id, [FromBody] ParcialUpdateUserRequest user)
@@ -87,16 +87,16 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
+    [HttpDelete("{id}/soft")]
 
-    [HttpDelete("{id}")]
-    public ActionResult DeleteUser([FromRoute] int id)
+    public ActionResult SoftDeleteUser(int id)
     {
-        var isDeleted = _userService.Delete(id);
-        if (!isDeleted)
+        var request = new SoftDeleteUserRequest { Id = id, IsDeleted = false };
+        var result = _userService.SoftDeleteUser(id, request);
+        if (!result)
         {
-            return BadRequest("Error al eliminar el usuario");
+            return NotFound("Error al eliminar el usuario");
         }
-
         return NoContent();
     }
 }
