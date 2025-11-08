@@ -24,22 +24,33 @@ namespace Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Platform>(e =>
+            {
+                e.HasKey(p => p.Id);
+                e.HasIndex(p => p.Name).IsUnique();
+            });
+            modelBuilder.Entity<Genre>(e =>
+            {
+                e.HasKey(g => g.Id);
+                e.HasIndex(g => g.Name).IsUnique();
+            });
+
             modelBuilder.Entity<Order>()
-                .HasOne(o => o.User)
-                .WithMany(u => u.Orders)
-                .HasForeignKey(o => o.UserId);
+                .Property(o => o.TotalAmount)
+                .HasColumnType("decimal(18, 2)");
+            modelBuilder.Entity<OrderItem>()
+                .Property(oi => oi.UnitPrice)
+                .HasColumnType("decimal(18, 2)");
+
+            modelBuilder.Entity<OrderItem>()
+                .Property(oi => oi.Subtotal)
+                .HasColumnType("decimal(18, 2)");
 
             modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Order)
-                .WithMany(o => o.Items)
-                .HasForeignKey(oi => oi.OrderId);
-
-            modelBuilder.Entity<OrderItem>()
-                .HasOne(oi => oi.Game)
-                .WithMany()
-                .HasForeignKey(oi => oi.GameId);
-
-
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Game>()
                 .HasMany(g => g.Platforms)
                 .WithMany(p => p.Games)
@@ -52,7 +63,7 @@ namespace Infrastructure.Persistence
                 .UsingEntity(j => j.ToTable("GameGenres"));
 
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "SysAdmin", LastName = "SysAdmin", BirthDate = new DateOnly(2000, 1, 1), Email = "sysadmin@demo.com", Password = HashHelper.ComputeHash("1234"), RoleId = (int)TypeRole.SysAdmin, IsDeleted = false },
+               new User { Id = 1, Name = "SysAdmin", LastName = "SysAdmin", BirthDate = new DateOnly(2000, 1, 1), Email = "sysadmin@demo.com", Password = HashHelper.ComputeHash("1234"), RoleId = (int)TypeRole.SysAdmin, IsDeleted = false },
                 new User { Id = 2, Name = "Admin", LastName = "Admin", BirthDate = new DateOnly(2000, 1, 1), Email = "admin@demo.com", Password = HashHelper.ComputeHash("1234"), RoleId = (int)TypeRole.Admin, IsDeleted = false },
                 new User { Id = 3, Name = "User", LastName = "User", BirthDate = new DateOnly(2000, 1, 1), Email = "user@demo.com", Password = HashHelper.ComputeHash("1234"), RoleId = (int)TypeRole.User, IsDeleted = false }
             );

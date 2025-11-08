@@ -1,9 +1,10 @@
-﻿using Contracts.User.Request;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Application.Service;
+﻿using Application.Service;
+using Contracts.User.Request;
 using Contracts.User.Response;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 
 namespace Api.Controllers;
@@ -29,9 +30,16 @@ public class UserController : ControllerBase
         }
         return Ok(usersList);
     }
+    [Authorize]
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
+        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+        var tokenUserId = User.FindFirst("userId")?.Value;
+        if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin) && tokenUserId != id.ToString())
+        {
+            return StatusCode(403, "No tenes permisos para ver otros usuarios");
+        }
         var user = _userService.GetById(id);
 
         return Ok(user);

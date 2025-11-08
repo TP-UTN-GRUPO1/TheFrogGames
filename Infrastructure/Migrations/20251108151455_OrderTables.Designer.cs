@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(TheFrogGamesDbContext))]
-    partial class TheFrogGamesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251108151455_OrderTables")]
+    partial class OrderTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,23 +170,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Role");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "SysAdmin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "User"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -236,41 +222,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BirthDate = new DateOnly(2000, 1, 1),
-                            Email = "sysadmin@demo.com",
-                            IsDeleted = false,
-                            LastName = "SysAdmin",
-                            Name = "SysAdmin",
-                            Password = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            BirthDate = new DateOnly(2000, 1, 1),
-                            Email = "admin@demo.com",
-                            IsDeleted = false,
-                            LastName = "Admin",
-                            Name = "Admin",
-                            Password = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            BirthDate = new DateOnly(2000, 1, 1),
-                            Email = "user@demo.com",
-                            IsDeleted = false,
-                            LastName = "User",
-                            Name = "User",
-                            Password = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
-                            RoleId = 3
-                        });
                 });
 
             modelBuilder.Entity("GameGenre", b =>

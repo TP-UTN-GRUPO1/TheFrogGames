@@ -1,4 +1,8 @@
-﻿using Application.Abstraction;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Application.Abstraction;
 using Contracts.Responses;
 using Contracts.Order.Request;
 using Domain.Entities;
@@ -6,44 +10,71 @@ using Domain.Entities;
 public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepo;
-    private readonly IBaseRepository<OrderItem> _orderItemRepo;
+    private readonly IGameRepository _gameRepo;
 
     public OrderService(IOrderRepository orderRepo,
-                        IBaseRepository<OrderItem> orderItemRepo)
+                        IGameRepository gameRepo)
     {
         _orderRepo = orderRepo;
-        _orderItemRepo = orderItemRepo;
+        _gameRepo = gameRepo;
     }
 
     public List<OrderResponse> GetOrders()
     {
-        var orders = _orderRepo.GetAll();
+        // Cargar órdenes con sus items y juego relacionado
+        var orders = _orderRepo
+            .FindByCondition(o => true, trackChanges: false)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Game)
+            .ToList();
 
-        var orderResponseList = orders.Select(o => MapToOrderResponse(o)).ToList();
-
-        return orderResponseList;
+        return orders.Select(MapToOrderResponse).ToList();
     }
-
 
     public OrderResponse? CreateOrder(CreateOrderRequest request)
     {
+        var gameIds = request.Items.Select(i => i.GameId).ToList();
+        var gamePrices = _gameRepo.GetPricesByIds(gameIds);
+
+        if (gamePrices.Count != gameIds.Count)
+            throw new Exception("One or more games were not found or are unavailable.");
+
         var order = new Order
         {
             UserId = request.UserId,
-            OrderDate = DateTime.UtcNow
+            OrderDate = DateTime.UtcNow,
+            TotalAmount = 0m,
         };
+
+        decimal calculatedTotal = 0m;
 
         foreach (var itemReq in request.Items)
         {
+            if (!gamePrices.TryGetValue(itemReq.GameId, out decimal unitPrice))
+                continue;
+
+            if (itemReq.Quantity <= 0)
+                continue;
+
+            decimal subtotal = itemReq.Quantity * unitPrice;
+
             var item = new OrderItem
             {
+                Order = order,
                 GameId = itemReq.GameId,
                 Quantity = itemReq.Quantity,
-                UnitPrice = itemReq.UnitPrice
+                UnitPrice = unitPrice,
+                Subtotal = subtotal
             };
 
-            order.Items.Add(item);
+            order.OrderItems.Add(item);
+            calculatedTotal += subtotal;
         }
+
+        if (order.OrderItems.Count == 0)
+            return null;
+
+        order.TotalAmount = calculatedTotal;
 
         bool created = _orderRepo.Create(order);
         if (!created) return null;
@@ -51,10 +82,7 @@ public class OrderService : IOrderService
         var createdOrder = _orderRepo.GetOrderWithItems(order.Id, trackChanges: false);
         if (createdOrder == null) return null;
 
-
-        var response = MapToOrderResponse(createdOrder);
-        return response;
-
+        return MapToOrderResponse(createdOrder);
     }
 
     public OrderResponse? GetOrderById(int id)
@@ -67,7 +95,7 @@ public class OrderService : IOrderService
     public List<OrderResponse> GetOrdersByUser(int userId)
     {
         var orders = _orderRepo.GetOrdersByUser(userId, trackChanges: false);
-        return orders.Select(o => MapToOrderResponse(o)).ToList();
+        return orders.Select(MapToOrderResponse).ToList();
     }
 
     public bool DeleteOrder(int id)
@@ -84,11 +112,11 @@ public class OrderService : IOrderService
             Id = order.Id,
             UserId = order.UserId,
             OrderDate = order.OrderDate,
-            Total = order.Total,
-            Items = order.Items.Select(i => new OrderItemResponse
+            Total = order.TotalAmount,
+            Items = order.OrderItems.Select(i => new OrderItemResponse
             {
                 Id = i.Id,
-                GameId = i.GameId,
+                GameTitle = i.Game?.Title, // <-- aquí ponemos el nombre del juego
                 Quantity = i.Quantity,
                 UnitPrice = i.UnitPrice
             }).ToList()
