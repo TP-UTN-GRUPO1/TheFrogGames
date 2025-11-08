@@ -35,7 +35,7 @@ public class UserController : ControllerBase
     public IActionResult GetById(int id)
     {
         var role = User.FindFirst(ClaimTypes.Role)?.Value;
-        var tokenUserId = User.FindFirst("userId")?.Value;
+        var tokenUserId = User.FindFirst("idUser")?.Value;
         if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin) && tokenUserId != id.ToString())
         {
             return StatusCode(403, "No tenes permisos para ver otros usuarios");
@@ -46,7 +46,6 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-
     public ActionResult CreateUser([FromBody] CreateUserRequest user)
     {
         var isCreated = _userService.Create(user);
@@ -57,49 +56,32 @@ public class UserController : ControllerBase
         return Ok("Usuario creado");
     }
 
-
-    //[HttpPatch("{id}/status")]
-    //public ActionResult UpdateUserStatus([FromRoute] int id, [FromBody] ParcialUpdateUserRequest user)
-    //{
-    //    user.Id = id;
-    //    var isActive = _userService.UpdateUserStatus(user);
-    //    if (!isActive)
-    //    {
-    //        return Conflict("No se puede dar de baja al usuario");
-    //    }
-    //    return NoContent();
-    //}
-
+    [Authorize]
     [HttpPatch("{id}")]
-    public ActionResult ParcialUpdateUser([FromRoute] int id, [FromBody] ParcialUpdateUserRequest user)
+    public ActionResult CompleteUserInfo([FromRoute] int id, [FromBody] CompleteUserInfoRequest user)
     {
-        var isParcialUpdated = _userService.ParcialUpdateUser(id, user);
-
-        if (!isParcialUpdated)
+        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+        var tokenUserId = User.FindFirst("idUser")?.Value;
+        if (role != nameof(TypeRole.SysAdmin) && role == nameof(TypeRole.Admin) && tokenUserId != id.ToString())
         {
-            return Conflict("No se pudo actualizar el usuario parcialmente");
+            return StatusCode(403, "No tenes permisos para editar otros usuarios");
         }
-
-        return NoContent();
-    }
-
-    [HttpPut("{id}")]
-    public ActionResult UpdateUser([FromRoute] int id, [FromBody] UpdateUserRequest user)
-    {
-        var isUpdated = _userService.Update(id, user);
+        var isUpdated = _userService.CompleteUserInfo(id, user);
 
         if (!isUpdated)
         {
-            return Conflict("Usuario no se pudo actualizar");
+            return Conflict("No se pudo actualizar el usuario o usuario inexistente");
         }
 
         return NoContent();
     }
-    [HttpDelete("{id}/soft")]
 
+
+    [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)}")]
+    [HttpDelete("{id}/soft")]
     public ActionResult SoftDeleteUser(int id)
     {
-        var request = new SoftDeleteUserRequest { Id = id, IsDeleted = false };
+        var request = new SoftDeleteUserRequest { Id = id, IsDeleted = true };
         var result = _userService.SoftDeleteUser(id, request);
         if (!result)
         {
@@ -107,4 +89,15 @@ public class UserController : ControllerBase
         }
         return NoContent();
     }
+    [Authorize(Roles =$"{nameof(TypeRole.SysAdmin)}")]
+    [HttpPut("{id}/role")]
+    public ActionResult ChangeRole([FromRoute] int id, [FromBody] ChangeRoleRequest request)
+    {
+        var isRoleChanged = _userService.ChangeRole(id, request);
+        if (!isRoleChanged)
+        {
+            return Conflict("No se pudo actualizar el rol");
+        }
+        return NoContent();
+    } 
 }
