@@ -1,5 +1,4 @@
 ﻿using Contracts.Responses;
-
 namespace Contracts.Responses
 {
     public class OrderResponse

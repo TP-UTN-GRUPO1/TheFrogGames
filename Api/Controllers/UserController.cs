@@ -35,6 +35,7 @@ public class UserController : ControllerBase
     public IActionResult GetById(int id)
     {
         var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
         var tokenUserId = User.FindFirst("idUser")?.Value;
         if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin) && tokenUserId != id.ToString())
         {

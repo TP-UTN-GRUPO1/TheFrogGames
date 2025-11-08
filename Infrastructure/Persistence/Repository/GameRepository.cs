@@ -27,6 +27,15 @@ namespace Infrastructure.Persistence.Repository
             return await _context.Games.FirstOrDefaultAsync(g => g.Id == id);
         }
 
+        public Dictionary<int, decimal> GetPricesByIds(List<int> gameIds)
+        {
+            var prices = _context.Games 
+                .Where(g => gameIds.Contains(g.Id))
+                .Select(g => new { g.Id, g.Price }) 
+                .ToDictionary(g => g.Id, g => g.Price);
+
+            return prices;
+        }
         public async Task AddAsync(Game game)
         {
             await _context.Games.AddAsync(game);
