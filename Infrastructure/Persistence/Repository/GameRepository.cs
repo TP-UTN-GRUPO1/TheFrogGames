@@ -12,6 +12,8 @@ namespace Infrastructure.Persistence.Repository
         {
             _context = context;
         }
+
+        public TheFrogGamesDbContext Context => _context;
         public List<Game> GetAll() // como esta en infra devolvemos la entidad de dominio y no el dto ojo con eso
         {
             return _context.Games
@@ -37,9 +39,29 @@ namespace Infrastructure.Persistence.Repository
 
         public bool Create(Game game)
         {
-            
-            _context.AttachRange(game.Genres.Where(g => g.Id != 0));
-            _context.AttachRange(game.Platforms.Where(p => p.Id != 0));
+            foreach (var genre in game.Genres)
+            {
+                if (genre.Id == 0)
+                {
+                    _context.Genres.Add(genre);
+                }
+                else
+                {
+                    _context.Attach(genre);
+                }
+            }
+
+            foreach (var platform in game.Platforms)
+            {
+                if (platform.Id == 0)
+                {
+                    _context.Platforms.Add(platform);
+                }
+                else
+                {
+                    _context.Attach(platform);
+                }
+            }
 
             _context.Games.Add(game);
             return _context.SaveChanges() > 0;
