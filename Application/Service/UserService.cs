@@ -27,7 +27,7 @@ public class UserService : IUserService
             BirthDate = user.BirthDate,
             IsDeleted = user.IsDeleted,
             RoleId = user.RoleId
-
+            
         };
     }
     public bool Create(CreateUserRequest user)
@@ -64,43 +64,21 @@ public class UserService : IUserService
         return userList;
     }
 
-    //public bool UpdateUserStatus(ParcialUpdateUserRequest request)
-    //{
-    //    var user = _userRepository.GetById(request.Id);
-
-    //    if (user == null)
-    //    {
-    //        return false;
-    //    }
-
-    //    user.IsDeleted = !user.IsDeleted;
-
-    //    return _userRepository.UpdateUserStatus(user);
-    //}
-
-    public bool ParcialUpdateUser(int id, ParcialUpdateUserRequest user)
+    public bool CompleteUserInfo(int id, CompleteUserInfoRequest user)
     {
         var ExistingUser = _userRepository.GetById(id);
 
-        if (ExistingUser == null)
+        if (ExistingUser == null || ExistingUser.IsDeleted)
         {
             return false;
         }
-        ExistingUser.Name = user.Name ?? ExistingUser.Name;
-        ExistingUser.LastName = user.LastName ?? ExistingUser.LastName;
+        ExistingUser.Name = PatchHelper.KeepIfEmpty(ExistingUser.Name, user.Name);
+        ExistingUser.LastName = PatchHelper.KeepIfEmpty(ExistingUser.LastName, user.LastName);
+        ExistingUser.Address =PatchHelper.KeepIfEmpty(ExistingUser.Address, user.Address);
+        ExistingUser.Country = PatchHelper.KeepIfEmpty(ExistingUser.Country, user.Country); ;
+        ExistingUser.Province = PatchHelper.KeepIfEmpty(ExistingUser.Province, user.Province); ;
+        ExistingUser.City = PatchHelper.KeepIfEmpty(ExistingUser.City, user.City);
 
-        return _userRepository.ParcialUpdateUser(ExistingUser);
-    }
-    public bool Update(int id, UpdateUserRequest user)
-    {
-        var ExistingUser = _userRepository.GetById(id);
-        if (ExistingUser == null)
-        {
-            return false;
-        }
-        ExistingUser.Name = user.Name;
-        ExistingUser.LastName = user.LastName;
-        ExistingUser.Email = user.Email;
         return _userRepository.Update(ExistingUser);
     }
     public bool SoftDeleteUser(int id, SoftDeleteUserRequest request)
@@ -120,6 +98,17 @@ public class UserService : IUserService
             throw new ApplicationException("Error al actualizar el estado del usuario.");
         }
         return true;
+    }
+
+    public bool ChangeRole(int id, ChangeRoleRequest request)
+    {
+        var user = _userRepository.GetById(id);
+        if (user == null)
+        {
+            return false;
+        }
+        user.RoleId = request.RoleId;
+        return _userRepository.Update(user);
     }
 
 }
