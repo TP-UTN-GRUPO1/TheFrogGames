@@ -21,10 +21,13 @@ public class UserService : IUserService
 
         return new UserResponse
         {
+            Id = user.Id.ToString(),
             CompleteName = completeName,
             Email = user.Email,
             BirthDate = user.BirthDate,
-            IsDeleted = user.IsDeleted
+            IsDeleted = user.IsDeleted,
+            RoleId = user.RoleId
+            
         };
     }
     public bool Create(CreateUserRequest user)
