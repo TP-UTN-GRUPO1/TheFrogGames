@@ -8,8 +8,7 @@ public interface IUserService
     UserResponse GetById(int id);
     bool Create(CreateUserRequest user);
     List<UserResponse> GetAll();
-    //bool UpdateUserStatus(ParcialUpdateUserRequest request);
-    bool ParcialUpdateUser(int id, ParcialUpdateUserRequest user);
-    bool Update(int id, UpdateUserRequest user);
+    bool CompleteUserInfo(int id, CompleteUserInfoRequest user);
     bool SoftDeleteUser(int id, SoftDeleteUserRequest request);
+    bool ChangeRole(int id, ChangeRoleRequest request);
 }

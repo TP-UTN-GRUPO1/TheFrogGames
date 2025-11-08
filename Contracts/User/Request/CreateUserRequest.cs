@@ -10,11 +10,15 @@ public class CreateUserRequest
     public string LastName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El email es requerido")]
+    [EmailAddress(ErrorMessage ="El formato del correo no es valido")]
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "La fecha de nacimiento es requerida")]
     public DateOnly BirthDate { get; set; }
     [Required(ErrorMessage = "Contraseña requerida")]
+    [StringLength(20, MinimumLength =8, ErrorMessage ="La contraseña debe tener al menos 8 caracteres")]
+    [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)\S{8,15}$",
+    ErrorMessage = "La contraseña debe tener minúsculas, mayúsculas, números y no contener espacios.")]
     public string Password { get; set; } = string.Empty;
 
     public int RoleId { get; set; } = 3;

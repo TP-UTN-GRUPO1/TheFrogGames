@@ -19,17 +19,5 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             .Include(x => x.Role)
             .FirstOrDefault(x => x.Email == request.Email && x.Password == HashHelper.ComputeHash(request.Password));
     }
-    public bool UpdateUserStatus(User user)
-    {
-        _context.Users.Update(user);
-        _context.SaveChanges();
-        return true;
-    }
 
-    public bool ParcialUpdateUser(User user)
-    {
-        _context.Users.Update(user);
-        _context.SaveChanges();
-        return true;
-    }
 }
