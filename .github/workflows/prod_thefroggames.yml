@@ -30,7 +30,7 @@ jobs:
         run: dotnet build TheFrogGames.sln --configuration Release --no-restore
 
       - name: dotnet publish
-        run: dotnet publish TheFrogGames/TheFrogGames.csproj -c Release -o ./myapp
+        run: dotnet publish TheFrogGames/Api.csproj -c Release -o ./myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
