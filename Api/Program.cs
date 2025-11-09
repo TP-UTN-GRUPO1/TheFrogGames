@@ -1,17 +1,18 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Text;
 using Application.Abstraction;
 using Application.Abstraction.ExternalServices;
 using Application.Service;
 using Domain.Entities;
 using Infrastructure.ExternalServices;
-using Infrastructure.Persistence.Repository;
 using Infrastructure.Options;
 using Infrastructure.Persistence;
+using Infrastructure.Persistence.Repository;
 using Infrastructure.Seeding;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);

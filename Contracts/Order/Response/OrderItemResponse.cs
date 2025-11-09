@@ -8,4 +8,3 @@
         public decimal UnitPrice { get; set; }
     }
 }
-

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
+﻿
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Application.Abstraction;
 using Contracts.Responses;
@@ -21,7 +20,6 @@ public class OrderService : IOrderService
 
     public List<OrderResponse> GetOrders()
     {
-        // Cargar órdenes con sus items y juego relacionado
         var orders = _orderRepo
             .FindByCondition(o => true, trackChanges: false)
             .Include(o => o.OrderItems)
@@ -37,7 +35,7 @@ public class OrderService : IOrderService
         var gamePrices = _gameRepo.GetPricesByIds(gameIds);
 
         if (gamePrices.Count != gameIds.Count)
-            throw new Exception("One or more games were not found or are unavailable.");
+            throw new Exception("Uno o mas juegos no estan disponibles o no se encontraron");
 
         var order = new Order
         {
@@ -111,12 +109,12 @@ public class OrderService : IOrderService
         {
             Id = order.Id,
             UserId = order.UserId,
-            OrderDate = order.OrderDate,
+            OrderDate = order.OrderDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             Total = order.TotalAmount,
             Items = order.OrderItems.Select(i => new OrderItemResponse
             {
                 Id = i.Id,
-                GameTitle = i.Game?.Title, // <-- aquí ponemos el nombre del juego
+                GameTitle = i.Game?.Title,
                 Quantity = i.Quantity,
                 UnitPrice = i.UnitPrice
             }).ToList()

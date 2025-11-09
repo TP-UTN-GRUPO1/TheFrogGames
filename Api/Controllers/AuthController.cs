@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Abstraction.ExternalServices;
 using Contracts.User.Request;
@@ -17,10 +16,11 @@ namespace TheFrogGames.Api.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public ActionResult<string> Login([FromBody] LoginUserRequest request)
         {
             var token = _authService.Login(request);
-            if (token == null)
+            if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Credenciales inválidas");
             }
