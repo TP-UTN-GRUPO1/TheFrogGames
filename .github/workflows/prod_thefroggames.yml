@@ -24,10 +24,10 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Restore dependencies
-        run: dotnet restore PortfolioAPI.sln
+        run: dotnet restore TheFrogGames.sln
 
       - name: Build application
-        run: dotnet build PortfolioAPI.sln --configuration Release --no-restore
+        run: dotnet build TheFrogGames.sln --configuration Release --no-restore
 
       - name: dotnet publish
         run: dotnet publish TheFrogGames/TheFrogGames.csproj -c Release -o ./myapp
