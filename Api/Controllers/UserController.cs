@@ -18,6 +18,11 @@ public class UserController : ControllerBase
     {
         _userService = userService;
     }
+    [HttpGet("/ping")]
+    public ActionResult Ping()
+    {
+        return Ok("TheFrogGames API esta funcionando");
+    }
 
     [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
     [HttpGet]
