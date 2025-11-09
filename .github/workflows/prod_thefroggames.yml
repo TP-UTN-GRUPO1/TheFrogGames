@@ -24,20 +24,19 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Restore dependencies
-        run: dotnet restore TheFrogGames.sln
+        run: dotnet restore PortfolioAPI.sln
 
       - name: Build application
-        run: dotnet build TheFrogGames.sln --configuration Release --no-restore
+        run: dotnet build PortfolioAPI.sln --configuration Release --no-restore
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ./myapp"
+        run: dotnet publish TheFrogGames/TheFrogGames.csproj -c Release -o ./myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ./myapp
-
   deploy:
     runs-on: windows-latest
     needs: build
