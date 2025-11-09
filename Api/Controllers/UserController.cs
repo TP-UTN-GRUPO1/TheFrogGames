@@ -18,8 +18,7 @@ public class UserController : ControllerBase
     {
         _userService = userService;
     }
-
-    [HttpGet]
+    [HttpGet("/ping")]
     public ActionResult Ping()
     {
         return Ok("TheFrogGames API esta funcionando");
