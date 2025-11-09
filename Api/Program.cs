@@ -93,6 +93,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("FrontendCorsPolicy");
 
 app.UseHttpsRedirection();
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.UseAuthentication();
 app.UseAuthorization();
 
