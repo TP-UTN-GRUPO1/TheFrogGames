@@ -6,7 +6,7 @@ using Infrastructure.ExternalServices;
 using Infrastructure.Options;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repository;
-using Infrastructure.Seeding;
+//using Infrastructure.Seeding;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -75,14 +75,14 @@ builder.Configuration.GetSection("GamesApiOptions"));
 
 builder.Services.AddHttpClient<IExternalGameService, GamesFromFirebaseService>();
 builder.Services.AddScoped<GameRepository>();
-builder.Services.AddScoped<GamesSeeder>();
+//builder.Services.AddScoped<GamesSeeder>();
 
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var seeder = scope.ServiceProvider.GetRequiredService<GamesSeeder>();
-    await seeder.SeedAsync();
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var seeder = scope.ServiceProvider.GetRequiredService<GamesSeeder>();
+//    await seeder.SeedAsync();
+//}
 
 if (app.Environment.IsDevelopment())
 {

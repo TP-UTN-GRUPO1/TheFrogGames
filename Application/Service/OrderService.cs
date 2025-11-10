@@ -113,7 +113,6 @@ public class OrderService : IOrderService
             Total = order.TotalAmount,
             Items = order.OrderItems.Select(i => new OrderItemResponse
             {
-                Id = i.Id,
                 GameTitle = i.Game?.Title,
                 Quantity = i.Quantity,
                 UnitPrice = i.UnitPrice
