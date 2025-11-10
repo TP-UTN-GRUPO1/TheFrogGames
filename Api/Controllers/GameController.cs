@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using Application.Abstraction;
+﻿using Application.Abstraction;
 using Application.Service;
 using Contracts.Game.Request;
 using Contracts.Game.Response;
 using Contracts.User.Request;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Api.Controllers
 {
@@ -17,16 +19,7 @@ namespace Api.Controllers
         {
             _gameService = gameService;
         }
-       /* [HttpGet]
-        public ActionResult<List<GameResponse>> GetAll()
-        {
-            var listGame = _gameService.GetAll();
-            if (!listGame.Any())
-            {
-                return NotFound();
-            }
-            return Ok(listGame);
-        } */
+      
         [HttpGet]
         public async Task<ActionResult<List<GameResponse>>> GetAllAsync(CancellationToken cancellationToken)
         {
@@ -39,7 +32,7 @@ namespace Api.Controllers
 
             return Ok(listGame);
         }
-
+        [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
         [HttpPost]
         public ActionResult Create([FromBody] CreateGameRequest game)
         {
@@ -60,7 +53,7 @@ namespace Api.Controllers
             if (game == null) return NotFound();
             return Ok(game);
         }
-
+        [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
         [HttpPut("{id}")]
         public ActionResult Update(int id, [FromBody] CreateGameRequest game)
         {
@@ -71,8 +64,8 @@ namespace Api.Controllers
             }
             return NoContent();
         }
-
-        [HttpPatch("{id}/availability")]
+        [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
+        [HttpPatch("{id}/notavailable")]
         public IActionResult SoftDelete(int id)
         {
             var request = new ParcialUpdateGameRequest { Id = id, Available = false };
@@ -83,7 +76,8 @@ namespace Api.Controllers
 
             return NoContent();
         }
-        [HttpPatch("{id}/restore")]
+        [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
+        [HttpPatch("{id}/available")]
         public IActionResult Restore(int id)
         {
             var request = new ParcialUpdateGameRequest { Id = id, Available = true };
