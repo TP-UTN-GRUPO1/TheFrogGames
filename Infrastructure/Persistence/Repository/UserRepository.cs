@@ -20,4 +20,9 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             .FirstOrDefault(x => x.Email == request.Email && x.Password == HashHelper.ComputeHash(request.Password));
     }
 
+    public bool UserEmailExist(string email)
+    {
+        return _context.Users.Any(x => x.Email == email);
+    }
+
 }
