@@ -34,6 +34,7 @@ public class AuthService : IAuthService
                 new Claim(ClaimTypes.Role, user.Role.Name)
         };
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+        Console.WriteLine(_configuration["Jwt:Key"]);
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
