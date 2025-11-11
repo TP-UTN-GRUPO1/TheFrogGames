@@ -43,7 +43,7 @@ namespace Api.Controllers
                 return Conflict("Error al crear el producto");
             }
 
-            return CreatedAtAction(nameof(GetById), new { id = game.Id }, game.Id);
+            return Ok();
         }
 
         [HttpGet("{id}")]
