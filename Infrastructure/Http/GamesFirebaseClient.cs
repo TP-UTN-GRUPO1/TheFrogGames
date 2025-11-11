@@ -1,11 +1,6 @@
-﻿using Contracts.Game.Response;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Contracts.Game.Response;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
-    
+
 namespace Infrastructure.Http
 {
     public class GamesFirebaseClient
@@ -13,9 +8,10 @@ namespace Infrastructure.Http
         private readonly HttpClient _httpClient;
 
         public GamesFirebaseClient(HttpClient httpClient)
-        { 
+        {
             _httpClient = httpClient;
         }
+
         public async Task<IEnumerable<GameResponse>> GetGamesAsync(CancellationToken ct = default)
         {
             try
@@ -27,7 +23,8 @@ namespace Infrastructure.Http
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Firebase] Error: {ex.Message}");
+                // Polly ya reintentará, pero logueamos para debug
+                Console.WriteLine($"[Firebase] Error al obtener juegos: {ex.Message}");
                 return Enumerable.Empty<GameResponse>();
             }
         }
