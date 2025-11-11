@@ -1,4 +1,5 @@
-﻿/*using Application.Abstraction.ExternalServices;
+﻿/*
+using Application.Abstraction.ExternalServices;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repository;
@@ -83,4 +84,5 @@ namespace Infrastructure.Seeding
         }
     }
 }
-/*
+
+ */
