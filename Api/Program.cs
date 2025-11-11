@@ -12,7 +12,9 @@ using Infrastructure.Persistence.Repository;
 using Infrastructure.Options;
 using Infrastructure.Persistence;
 using Infrastructure.Seeding;
-
+using Polly;
+using Polly.Extensions.Http;
+using Infrastructure.ExternalServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,7 @@ builder.Services.AddCors(options =>
                                 .AllowAnyMethod();
                       });
 });
+
 
 builder.Services.AddDbContext<TheFrogGamesDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -68,6 +71,14 @@ builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
 
+builder.Services.AddHttpClient<IExternalGameService, GamesFromFirebaseService>((sp, client) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = config["GamesApiOptions:BaseUrl"];
+    client.BaseAddress = new Uri(baseUrl!);
+})
+.AddPolicyHandler(HttpPolicies.GetRetryPolicy())
+.AddPolicyHandler(HttpPolicies.GetCircuitBreakerPolicy());
 
 builder.Services.Configure<GamesApiOptions>(
 builder.Configuration.GetSection("GamesApiOptions"));
@@ -75,6 +86,8 @@ builder.Configuration.GetSection("GamesApiOptions"));
 builder.Services.AddHttpClient<IExternalGameService, GamesFromFirebaseService>();
 builder.Services.AddScoped<GameRepository>();
 builder.Services.AddScoped<GamesSeeder>();
+/*builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();*/
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())

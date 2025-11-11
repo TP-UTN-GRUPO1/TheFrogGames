@@ -22,9 +22,11 @@ namespace Infrastructure.ExternalServices
         {
             try
             {
+                Console.WriteLine("Obteniendo juegos desde firebase");
                 var response = await _httpClient.GetFromJsonAsync<List<GameResponse>>(
                     "dataGames.json", cancellationToken);
-
+                
+                Console.WriteLine("jeugos obtenidos");
                 return response ?? Enumerable.Empty<GameResponse>();
             }
             catch 
