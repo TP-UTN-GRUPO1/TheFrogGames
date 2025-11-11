@@ -51,6 +51,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [AllowAnonymous]
     [HttpPost]
     public ActionResult CreateUser([FromBody] CreateUserRequest user)
     {
