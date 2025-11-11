@@ -90,13 +90,25 @@ namespace Api.Controllers
         [HttpPost]
         public ActionResult Create([FromBody] CreateOrderRequest request)
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != nameof(TypeRole.User))
+            {
+                return StatusCode(403, "Solo un cliente normal puede hacer una orden de compra");
+            }
+
+            var tokenUserIdStr = User.FindFirst("idUser")?.Value;
+            if (!int.TryParse(tokenUserIdStr, out int tokenUserId))
+            {
+                return StatusCode(403, "No autorizado");
+            }
+
             try
             {
-                var newOrderResponse = _orderService.CreateOrder(request);
+                var newOrderResponse = _orderService.CreateOrder(request, tokenUserId);
 
                 if (newOrderResponse == null)
                 {
-                    return BadRequest(new { message = "No se pudo crear la orden." });
+                    return BadRequest(new { message ="No se pudo crear la orden." });
                 }
                 return CreatedAtAction(
                     nameof(Get),

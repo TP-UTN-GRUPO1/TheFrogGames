@@ -1,5 +1,4 @@
-﻿
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Application.Abstraction;
 using Contracts.Responses;
@@ -29,7 +28,7 @@ public class OrderService : IOrderService
         return orders.Select(MapToOrderResponse).ToList();
     }
 
-    public OrderResponse? CreateOrder(CreateOrderRequest request)
+    public OrderResponse? CreateOrder(CreateOrderRequest request, int userId)
     {
         var gameIds = request.Items.Select(i => i.GameId).ToList();
         var gamePrices = _gameRepo.GetPricesByIds(gameIds);
@@ -39,6 +38,7 @@ public class OrderService : IOrderService
 
         var order = new Order
         {
+            UserId = userId,
             OrderDate = DateTime.UtcNow,
             TotalAmount = 0m,
         };
