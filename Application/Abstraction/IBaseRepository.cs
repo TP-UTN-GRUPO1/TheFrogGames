@@ -18,6 +18,8 @@ namespace Application.Abstraction
 
         Task<IEnumerable<T>> GetAllAsync();
         Task AddAsync(T entity);
-
+        Task AddRangeAsync(IEnumerable<T> entities, CancellationToken ct = default);
+        Task<IEnumerable<T>> GetAllAsync(CancellationToken ct = default);
+        
     }
 }

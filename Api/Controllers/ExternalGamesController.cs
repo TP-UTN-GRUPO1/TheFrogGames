@@ -36,8 +36,15 @@ namespace Api.Controllers
             if (!externalGames.Any())
                 return BadRequest("No se encontraron juegos en Firebase.");
 
-            await _gameService.AddGamesAsync(externalGames, cancellationToken);
-            return Ok(new { message = "Juegos importados correctamente." });
+            try
+            {
+                await _gameService.AddGamesAsync(externalGames, cancellationToken);
+                return Ok(new { message = "Juegos importados correctamente." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

@@ -111,5 +111,10 @@ namespace Infrastructure.Persistence.Repository
         {
             await _dbSet.AddAsync(entity);
         }
+        public async Task<IEnumerable<T>> GetAllAsync(CancellationToken ct = default)
+    => await _dbSet.AsNoTracking().ToListAsync(ct);
+
+        public async Task AddRangeAsync(IEnumerable<T> entities, CancellationToken ct = default)
+            => await _dbSet.AddRangeAsync(entities, ct);
     }
 }
