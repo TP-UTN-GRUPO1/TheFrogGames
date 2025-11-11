@@ -1,23 +1,16 @@
 using Application.Abstraction;
 using Application.Abstraction.ExternalServices;
 using Application.Service;
-using Azure.Core;
 using Azure.Identity;
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Domain.Entities;
 using Infrastructure.ExternalServices;
 using Infrastructure.Options;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repository;
-//using Infrastructure.Seeding;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.Text;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,27 +23,37 @@ if (builder.Environment.IsProduction())
         builder.Configuration.AddAzureKeyVault(vaultUri, new DefaultAzureCredential());
     }
 }
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: "FrontendCorsPolicy",
-                      policy =>
-                      {
-                          policy.WithOrigins("http://localhost:5173")
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                      });
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowAnyOrigin();
+    });
 });
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("ConnectionStrings:DefaultConnection no está configurada. Verifica user-secrets (dev) o Key Vault (prod).");
+}
+
 builder.Services.AddDbContext<TheFrogGamesDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString)
+);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         var key = builder.Configuration["Jwt:Key"];
+        var issuer = builder.Configuration["Jwt:Issuer"];
+        var audience = builder.Configuration["Jwt:Audience"];
+
         if (string.IsNullOrEmpty(key))
         {
-            throw new InvalidOperationException("Jwt:Key no está configurado. Verifica Key Vault / user-secrets.");
+            throw new InvalidOperationException("Jwt:Key no está configurado. Verifica user-secrets (dev) o Key Vault (prod).");
         }
 
         options.TokenValidationParameters = new TokenValidationParameters
@@ -59,8 +62,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = issuer,
+            ValidAudience = audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
         };
     });
@@ -72,9 +75,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(nameof(TypeRole.User), policy => policy.RequireRole(nameof(TypeRole.User)));
 });
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -92,7 +92,10 @@ builder.Services.Configure<GamesApiOptions>(
     builder.Configuration.GetSection("GamesApiOptions"));
 
 builder.Services.AddHttpClient<IExternalGameService, GamesFromFirebaseService>();
-builder.Services.AddScoped<GameRepository>();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -102,10 +105,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("FrontendCorsPolicy");
-
 app.UseHttpsRedirection();
-app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+
+app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
 

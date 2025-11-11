@@ -40,6 +40,9 @@ namespace Api.Controllers
                 list = _orderService.GetOrdersByUser(tokenUserId);
             }
 
+            if (list == null || !list.Any())
+                return NotFound(new { message = "No se encontraron órdenes." });
+
             return Ok(list);
         }
 
@@ -58,7 +61,7 @@ namespace Api.Controllers
             var list = _orderService.GetOrdersByUser(userId);
             if (list == null || !list.Any())
             {
-                return NotFound();
+                return NotFound(new { message = $"No se encontraron órdenes para el usuario {userId}." });
             }
             return Ok(list);
         }
@@ -69,7 +72,7 @@ namespace Api.Controllers
             var dto = _orderService.GetOrderById(id);
             if (dto == null)
             {
-                return NotFound();
+                return NotFound(new { message = $"Orden con id {id} no encontrada." });
             }
 
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -93,7 +96,7 @@ namespace Api.Controllers
 
                 if (newOrderResponse == null)
                 {
-                    return BadRequest("No se pudo crear la orden.");
+                    return BadRequest(new { message = "No se pudo crear la orden." });
                 }
                 return CreatedAtAction(
                     nameof(Get),
@@ -111,12 +114,15 @@ namespace Api.Controllers
         {
             try
             {
-                _orderService.DeleteOrder(id);
+                var deleted = _orderService.DeleteOrder(id);
+                if (!deleted)
+                    return NotFound(new { message = $"No se encontró la orden con id {id} para eliminar." });
+
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return NotFound(new { error = ex.Message });
+                return BadRequest(new { error = ex.Message });
             }
         }
     }
