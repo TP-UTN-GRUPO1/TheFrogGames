@@ -15,6 +15,7 @@ public class User : BaseEntity
     public string? City { get; set; }
     public int RoleId { get; set; }
     public bool IsDeleted { get; set; } = false;
+    public string? PokemonName { get; set; }
     public ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public Role Role { get; set; }

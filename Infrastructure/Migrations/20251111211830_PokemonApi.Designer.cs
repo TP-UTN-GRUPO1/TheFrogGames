@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(TheFrogGamesDbContext))]
-    [Migration("20251108155634_Seed-Users")]
-    partial class SeedUsers
+    [Migration("20251111211830_PokemonApi")]
+    partial class PokemonApi
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -228,6 +228,10 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PokemonName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Province")
                         .HasColumnType("nvarchar(max)");
 
@@ -239,41 +243,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BirthDate = new DateOnly(2000, 1, 1),
-                            Email = "sysadmin@demo.com",
-                            IsDeleted = false,
-                            LastName = "SysAdmin",
-                            Name = "SysAdmin",
-                            Password = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            BirthDate = new DateOnly(2000, 1, 1),
-                            Email = "admin@demo.com",
-                            IsDeleted = false,
-                            LastName = "Admin",
-                            Name = "Admin",
-                            Password = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            BirthDate = new DateOnly(2000, 1, 1),
-                            Email = "user@demo.com",
-                            IsDeleted = false,
-                            LastName = "User",
-                            Name = "User",
-                            Password = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
-                            RoleId = 3
-                        });
                 });
 
             modelBuilder.Entity("GameGenre", b =>

@@ -1,4 +1,5 @@
 ﻿using Application.Abstraction;
+using Application.Abstraction.ExternalServices;
 using Application.Helpers;
 using Contracts.User.Request;
 using Contracts.User.Response;
@@ -10,9 +11,12 @@ namespace Application.Service;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
-    public UserService(IUserRepository userRepository)
+    private readonly IPokemonService _pokemonService;
+
+    public UserService(IUserRepository userRepository, IPokemonService pokemonService)
     {
         _userRepository = userRepository;
+        _pokemonService = pokemonService;
     }
     public UserResponse GetById(int id)
     {
@@ -31,7 +35,7 @@ public class UserService : IUserService
             
         };
     }
-    public bool Create(CreateUserRequest user)
+    public async Task<bool> Create(CreateUserRequest user)
     {
         if (_userRepository.UserEmailExist(user.Email))
         {
@@ -39,6 +43,9 @@ public class UserService : IUserService
         }
 
         string hashedPassword = HashHelper.ComputeHash(user.Password);
+
+        int randomPokemonId = new Random().Next(1, 1000);
+        var pokemon = await _pokemonService.GetPokemons(randomPokemonId);
         
         var newUser = new User
         {

@@ -2,6 +2,7 @@
 using Contracts.User.Request;
 using Contracts.User.Response;
 using Domain.Entities;
+using Infrastructure.ExternalServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -14,9 +15,19 @@ namespace Api.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
-    public UserController(IUserService userService)
+    private readonly PokemonService _pokemonService;
+
+    public UserController(IUserService userService, PokemonService pokemonService)
     {
         _userService = userService;
+        _pokemonService = pokemonService;
+
+    }
+    [HttpGet("pokemon/{id}")]
+    public async Task<IActionResult> GetPokemon(int id)
+    {
+        var pokemon = await _pokemonService.GetPokemons(id);
+        return Ok(pokemon);
     }
     [HttpGet("/ping")]
     public ActionResult Ping()
@@ -51,11 +62,13 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+
+
     [AllowAnonymous]
     [HttpPost]
-    public ActionResult CreateUser([FromBody] CreateUserRequest user)
+    public async Task<ActionResult> CreateUser([FromBody] CreateUserRequest user)
     {
-        var isCreated = _userService.Create(user);
+        var isCreated = await _userService.Create(user);
         if (!isCreated)
         {
             return BadRequest("No se pudo crear el usuario");
