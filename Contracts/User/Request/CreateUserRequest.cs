@@ -21,6 +21,4 @@ public class CreateUserRequest
     ErrorMessage = "La contraseña debe tener minúsculas, mayúsculas, números y no contener espacios.")]
     public string Password { get; set; } = string.Empty;
 
-    public int RoleId { get; set; } = 3;
-
 }
