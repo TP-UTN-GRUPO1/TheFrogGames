@@ -4,7 +4,7 @@ using Application.Service;
 using Azure.Identity;
 using Domain.Entities;
 using Infrastructure.ExternalServices;
-using Infrastructure.Http;           // <-- NUEVO: Typed Client
+using Infrastructure.Http;           
 using Infrastructure.Options;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repository;
@@ -93,7 +93,6 @@ builder.Services.AddScoped<IPlatformService, PlatformService>();
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
-
 
 builder.Services.Configure<GamesApiOptions>(
     builder.Configuration.GetSection("GamesApiOptions"));
