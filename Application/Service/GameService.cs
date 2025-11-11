@@ -99,55 +99,80 @@ namespace Application.Service
 
         public bool Create(CreateGameRequest request)
         {
+            /* que ningun campo este vacio */
+            if (request == null)
+                throw new ArgumentException("La solicitud de creación no puede ser nula.");
 
+            if (string.IsNullOrWhiteSpace(request.Title))
+                throw new ArgumentException("El título del juego no puede estar vacío.");
+
+            if (string.IsNullOrWhiteSpace(request.Developer))
+                throw new ArgumentException("El desarrollador no puede estar vacío.");
+
+            if (string.IsNullOrWhiteSpace(request.ImageUrl))
+                throw new ArgumentException("La URL de la imagen no puede estar vacía.");
+
+            if (request.Price <= 0)
+                throw new ArgumentException("El precio debe ser mayor a 0.");
+
+            if (request.Rating < 0 || request.Rating > 10)
+                throw new ArgumentException("El rating debe estar entre 0 y 10.");
+
+            if (request.Genres == null || !request.Genres.Any())
+                throw new ArgumentException("Debe especificar al menos un género.");
+
+            if (request.Platforms == null || !request.Platforms.Any())
+                throw new ArgumentException("Debe especificar al menos una plataforma.");
+
+            /* nos fijamos que ningun juego ya exista en la bd asi evitamos un duplicado
+             el core de esto seria que el juego ya venga multiplataforma y no que sea uno por 
+            plataforma , ej tenes gta 5 que esta para todo, la idea seria evitar un id x juego/platf*/
+            var normalizedTitle = request.Title.Trim();
+
+            var existingGame = _gameRepo
+                .GetAll()
+                .FirstOrDefault(g => g.Title.Equals(normalizedTitle, StringComparison.OrdinalIgnoreCase));
+
+            if (existingGame != null)
+                throw new InvalidOperationException($"Ya existe un juego con el título '{normalizedTitle}'.");
+
+           
             var existingGenres = _genreRepo.GetAll().ToList();
             var existingPlatforms = _platformRepo.GetAll().ToList();
 
-
+      
             var game = new Game
             {
-                Title = request.Title,
+                Title = normalizedTitle,
                 Price = request.Price,
-                Developer = request.Developer,
-                ImageUrl = request.ImageUrl,
+                Developer = request.Developer.Trim(),
+                ImageUrl = request.ImageUrl.Trim(),
                 Rating = request.Rating,
                 Available = request.Available,
                 Sold = request.Sold,
                 Genres = new List<Genre>(),
                 Platforms = new List<Platform>()
             };
+
+           
             foreach (var genreName in request.Genres.Distinct(StringComparer.OrdinalIgnoreCase))
             {
-                var existingGenre = existingGenres
-                    .FirstOrDefault(g => g.Name.Equals(genreName, StringComparison.OrdinalIgnoreCase));
-
-                if (existingGenre != null)
-                {
-                    
-                    game.Genres.Add(existingGenre);
-                }
-                else
-                {
-                    
-                    var newGenre = new Genre { Name = genreName };
-                    game.Genres.Add(newGenre);
-                }
+                var genre = existingGenres
+                    .FirstOrDefault(g => g.Name.Equals(genreName, StringComparison.OrdinalIgnoreCase))
+                    ?? new Genre { Name = genreName };
+                game.Genres.Add(genre);
             }
+
+            
             foreach (var platformName in request.Platforms.Distinct(StringComparer.OrdinalIgnoreCase))
             {
-                var existingPlatform = existingPlatforms
-                    .FirstOrDefault(p => p.Name.Equals(platformName, StringComparison.OrdinalIgnoreCase));
-
-                if (existingPlatform != null)
-                {
-                    game.Platforms.Add(existingPlatform);
-                }
-                else
-                {
-                    var newPlatform = new Platform { Name = platformName };
-                    game.Platforms.Add(newPlatform);
-                }
+                var platform = existingPlatforms
+                    .FirstOrDefault(p => p.Name.Equals(platformName, StringComparison.OrdinalIgnoreCase))
+                    ?? new Platform { Name = platformName };
+                game.Platforms.Add(platform);
             }
+
+           
             bool success = _gameRepo.Create(game);
 
             if (!success)
@@ -155,6 +180,7 @@ namespace Application.Service
 
             return true;
         }
+
 
         public bool Update(int id, CreateGameRequest request)
         {
