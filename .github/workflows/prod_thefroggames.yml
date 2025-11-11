@@ -47,11 +47,11 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-  
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: "8.x"
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
@@ -67,11 +67,13 @@ jobs:
 
       - name: Install dotnet-ef tool
         run: dotnet tool install --global dotnet-ef --version 8.*
-          
+
       - name: Update database with EF Core migrations
         run: dotnet ef database update --project ./Infrastructure/Infrastructure.csproj --startup-project ./Api/Api.csproj
         env:
           ASPNETCORE_ENVIRONMENT: Production
+          ConnectionStrings__DefaultConnection: ${{ secrets.CONNECTION_STRING_PROD }}
+          AZURE_KEY_VAULT_ENDPOINT: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
