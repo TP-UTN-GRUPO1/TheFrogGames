@@ -1,37 +1,22 @@
-﻿using Microsoft.Extensions.Options;
-using System.Net.Http.Json;
+﻿
 using Application.Abstraction.ExternalServices;
 using Contracts.Game.Response;
-using Infrastructure.Options;
+using Infrastructure.Http;
 
 namespace Infrastructure.ExternalServices
 {
     public class GamesFromFirebaseService : IExternalGameService
     {
-        private readonly HttpClient _httpClient;
+        private readonly GamesFirebaseClient _client;
 
-        public GamesFromFirebaseService(HttpClient httpClient, IOptions<GamesApiOptions> options)
+        public GamesFromFirebaseService(GamesFirebaseClient client)
         {
-            _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri(options.Value.BaseUrl);
-                 _httpClient.Timeout = TimeSpan.FromSeconds(10);
+            _client = client;
         }
 
-        
-        public async Task<IEnumerable<GameResponse>> GetGames(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<GameResponse>> GetGames(CancellationToken ct = default)
         {
-            try
-            {
-                var response = await _httpClient.GetFromJsonAsync<List<GameResponse>>(
-                    "dataGames.json", cancellationToken);
-
-                return response ?? Enumerable.Empty<GameResponse>();
-            }
-            catch 
-            {
-                Console.WriteLine("Error al obtener los juegos");
-                throw;
-            }
+            return await _client.GetGamesAsync(ct);
         }
     }
 }
