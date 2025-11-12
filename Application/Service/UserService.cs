@@ -4,7 +4,6 @@ using Application.Helpers;
 using Contracts.User.Request;
 using Contracts.User.Response;
 using Domain.Entities;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Application.Service;
 
@@ -30,8 +29,8 @@ public class UserService : IUserService
             Email = user.Email,
             BirthDate = user.BirthDate,
             IsDeleted = user.IsDeleted,
-            RoleId = user.RoleId
-            
+            RoleId = user.RoleId,
+            PokemonName = user.PokemonName
         };
     }
     public async Task<bool> Create(CreateUserRequest user)
@@ -74,7 +73,7 @@ public class UserService : IUserService
                 BirthDate = u.BirthDate,
                 IsDeleted = u.IsDeleted,
                 RoleId = u.RoleId,
-
+                PokemonName = u.PokemonName
             }).ToList();
         return userList;
     }

@@ -83,7 +83,7 @@ namespace TheFrogGames.Api.Controllers
 
             if (success)
             {
-                return NoContent();
+                return Ok(new { message = "La plataforma se ha eliminado correctamente." });
             }
             else
             {
