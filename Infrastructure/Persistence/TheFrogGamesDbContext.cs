@@ -61,12 +61,6 @@ namespace Infrastructure.Persistence
                 .HasMany(g => g.Genres)
                 .WithMany(ge => ge.Games)
                 .UsingEntity(j => j.ToTable("GameGenres"));
-
-            modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "SysAdmin", LastName = "SysAdmin", BirthDate = new DateOnly(2000, 1, 1), Email = "sysadmin@demo.com", Password = HashHelper.ComputeHash("FrogGames7$"), RoleId = (int)TypeRole.SysAdmin, IsDeleted = false },
-                new User { Id = 2, Name = "Admin", LastName = "Admin", BirthDate = new DateOnly(2000, 1, 1), Email = "admin@demo.com", Password = HashHelper.ComputeHash("FrogGames7$"), RoleId = (int)TypeRole.Admin, IsDeleted = false },
-                new User { Id = 3, Name = "User", LastName = "User", BirthDate = new DateOnly(2000, 1, 1), Email = "user@demo.com", Password = HashHelper.ComputeHash("FrogGames7$"), RoleId = (int)TypeRole.User, IsDeleted = false }
-            );
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = nameof(TypeRole.SysAdmin) },
                 new Role { Id = 2, Name = nameof(TypeRole.Admin) },
