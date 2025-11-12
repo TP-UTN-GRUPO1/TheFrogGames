@@ -16,7 +16,7 @@ public class User : BaseEntity
     public int RoleId { get; set; }
     public bool IsDeleted { get; set; } = false;
     public ICollection<Order> Orders { get; set; } = new List<Order>();
-
+    public string? PokemonName { get; set; }
     public Role Role { get; set; }
 
 
