@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Contracts.Responses;
 using Contracts.Order.Request;
-using Application.Abstraction;
 using Domain.Entities;
 
 namespace Api.Controllers
@@ -90,6 +89,11 @@ namespace Api.Controllers
         [HttpPost]
         public ActionResult Create([FromBody] CreateOrderRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             if (role != nameof(TypeRole.User))
             {
