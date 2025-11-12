@@ -142,7 +142,7 @@ namespace Application.Service
                 .FirstOrDefault(g => g.Title.Equals(normalizedTitle, StringComparison.OrdinalIgnoreCase));
 
             if (existingGame != null)
-                throw new InvalidOperationException($"Ya existe un juego con el título '{normalizedTitle}'.");
+                throw new ArgumentException($"Ya existe un juego con el título '{normalizedTitle}'.");
 
            
             var existingGenres = _genreRepo.GetAll().ToList();
@@ -274,11 +274,12 @@ namespace Application.Service
                 Platforms = g.Platforms?.Select(name => new Platform { Name = name }).ToList() ?? new List<Platform>()
             }).ToList();
 
-            
             await _gameRepo.AddRangeAsync(gameEntities, ct);
             await _gameRepo.SaveChangesAsync();
 
+            Console.WriteLine($" Se guardaron {gameEntities.Count} juegos en la BD.");
         }
+
 
         public async Task<IEnumerable<GameResponse>> GetAllAsync(CancellationToken cancellationToken)
         {

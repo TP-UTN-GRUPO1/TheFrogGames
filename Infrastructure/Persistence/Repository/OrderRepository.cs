@@ -1,5 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Application.Abstraction;
 using Domain.Entities;
 
@@ -14,7 +13,8 @@ namespace Infrastructure.Persistence.Repository
 
         public List<Order> GetAllWithItems(bool trackChanges = false)
         {
-            IQueryable<Order> baseQuery = _context.Set<Order>();
+            IQueryable<Order> baseQuery = _context.Set<Order>()
+                .Where(o => !o.IsCancelled);
 
             if (!trackChanges)
                 baseQuery = baseQuery.AsNoTracking();
@@ -27,9 +27,8 @@ namespace Infrastructure.Persistence.Repository
 
         public List<Order> GetOrdersByUser(int userId, bool trackChanges = false)
         {
-            // 1. Crea la consulta base
             IQueryable<Order> baseQuery = _context.Set<Order>()
-                .Where(o => o.UserId == userId);
+                .Where(o => o.UserId == userId && !o.IsCancelled);
 
             if (!trackChanges)
                 baseQuery = baseQuery.AsNoTracking();
@@ -39,6 +38,7 @@ namespace Infrastructure.Persistence.Repository
                     .ThenInclude(oi => oi.Game)
                 .ToList();
         }
+
         public Order? GetOrderWithItems(int orderId, bool trackChanges = false)
         {
             IQueryable<Order> baseQuery = _context.Set<Order>()

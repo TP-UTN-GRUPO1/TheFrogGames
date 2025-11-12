@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Contracts.Platform.Request;
 using Application.Service;
 using Contracts.Platform.Response;
+using Domain.Entities;
 
 namespace TheFrogGames.Api.Controllers
 {
@@ -23,6 +25,10 @@ namespace TheFrogGames.Api.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] CreatePlatformRequest request)
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin))
+                return StatusCode(403, "No tienes permisos para crear plataformas");
+
             try
             {
                 var newPlatform = _platformService.CreatePlatform(request);
@@ -39,6 +45,10 @@ namespace TheFrogGames.Api.Controllers
         [HttpPut]
         public IActionResult Update([FromBody] UpdatePlatformRequest request)
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin))
+                return StatusCode(403, "No tienes permisos para modificar plataformas");
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -61,6 +71,10 @@ namespace TheFrogGames.Api.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin))
+                return StatusCode(403, "No tienes permisos para eliminar plataformas");
+
             if (id <= 0)
             {
                 return BadRequest("El ID de la plataforma debe ser positivo.");
@@ -73,7 +87,7 @@ namespace TheFrogGames.Api.Controllers
             }
             else
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error al intentar eliminar el género.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error al intentar eliminar la plataforma.");
             }
         }
     }

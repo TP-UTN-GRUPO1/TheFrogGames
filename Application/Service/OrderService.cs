@@ -20,7 +20,7 @@ public class OrderService : IOrderService
     public List<OrderResponse> GetOrders()
     {
         var orders = _orderRepo
-            .FindByCondition(o => true, trackChanges: false)
+            .FindByCondition(o => !o.IsCancelled, trackChanges: false)
             .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Game)
             .ToList();
@@ -97,9 +97,13 @@ public class OrderService : IOrderService
 
     public bool DeleteOrder(int id)
     {
-        var order = _orderRepo.GetById(id, trackChanges: false);
+        var order = _orderRepo.GetById(id, trackChanges: true);
         if (order == null) return false;
-        return _orderRepo.Delete(order);
+
+        if (order.IsCancelled) return true;
+
+        order.IsCancelled = true;
+        return _orderRepo.Update(order);
     }
 
     private OrderResponse MapToOrderResponse(Order order)
@@ -115,7 +119,8 @@ public class OrderService : IOrderService
                 GameTitle = i.Game?.Title,
                 Quantity = i.Quantity,
                 UnitPrice = i.UnitPrice
-            }).ToList()
+            }).ToList(),
+            IsCancelled = order.IsCancelled
         };
     }
 }

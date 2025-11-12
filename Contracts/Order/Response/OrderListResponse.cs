@@ -8,5 +8,6 @@
         public decimal Total { get; set; }
 
         public List<OrderItemResponse> Items { get; set; } = new List<OrderItemResponse>();
+        public bool IsCancelled { get; set; } = false;
     }
 }
