@@ -274,11 +274,12 @@ namespace Application.Service
                 Platforms = g.Platforms?.Select(name => new Platform { Name = name }).ToList() ?? new List<Platform>()
             }).ToList();
 
-            
             await _gameRepo.AddRangeAsync(gameEntities, ct);
             await _gameRepo.SaveChangesAsync();
 
+            Console.WriteLine($" Se guardaron {gameEntities.Count} juegos en la BD.");
         }
+
 
         public async Task<IEnumerable<GameResponse>> GetAllAsync(CancellationToken cancellationToken)
         {
