@@ -1,12 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Application.Service;
 using Contracts.Genre.Request;
-using Application.Service;
 using Contracts.Genre.Response;
 using Contracts.Order.Request;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
     [ApiController]
+    
+
     [Route("api/[controller]")]
     public class GenreController : ControllerBase
     {
@@ -21,6 +25,7 @@ namespace Api.Controllers
             var list = _genreService.GetGenres();
             return Ok(list);
         }
+        [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
         [HttpPost]
         public IActionResult Create([FromBody] CreateGenreRequest request)
         {
@@ -37,6 +42,7 @@ namespace Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error interno del servidor: {ex.Message}");
             }
         }
+        [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
         [HttpPut]
         public IActionResult Update([FromBody] UpdateGenreRequest request)
         {
@@ -59,6 +65,7 @@ namespace Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
         }
+        [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

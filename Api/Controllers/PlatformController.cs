@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Application.Service;
 using Contracts.Platform.Request;
-using Application.Service;
 using Contracts.Platform.Response;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TheFrogGames.Api.Controllers
 {
@@ -20,6 +22,7 @@ namespace TheFrogGames.Api.Controllers
             var list = _platformService.GetPlatform();
             return Ok(list);
         }
+        [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
         [HttpPost]
         public IActionResult Create([FromBody] CreatePlatformRequest request)
         {
@@ -36,6 +39,7 @@ namespace TheFrogGames.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error interno del servidor: {ex.Message}");
             }
         }
+        [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
         [HttpPut]
         public IActionResult Update([FromBody] UpdatePlatformRequest request)
         {
@@ -58,6 +62,7 @@ namespace TheFrogGames.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
         }
+        [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
