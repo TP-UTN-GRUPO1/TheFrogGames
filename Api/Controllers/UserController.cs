@@ -24,7 +24,7 @@ public class UserController : ControllerBase
         return Ok("TheFrogGames API esta funcionando");
     }
 
-    [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
+    [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)}")]
     [HttpGet]
     public ActionResult<List<UserResponse>> GetAllUsers()
     {
@@ -53,13 +53,12 @@ public class UserController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost]
-    public ActionResult CreateUser([FromBody] CreateUserRequest user)
+    public async Task<ActionResult> CreateUser([FromBody] CreateUserRequest user)
     {
-        var isCreated = _userService.Create(user);
+        var isCreated = await _userService.Create(user);
         if (!isCreated)
-        {
             return BadRequest("No se pudo crear el usuario");
-        }
+
         return Ok("Usuario creado");
     }
 
