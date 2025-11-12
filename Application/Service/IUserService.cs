@@ -6,7 +6,7 @@ namespace Application.Service;
 public interface IUserService
 {
     UserResponse GetById(int id);
-    bool Create(CreateUserRequest user);
+    Task<bool> Create(CreateUserRequest user);
     List<UserResponse> GetAll();
     bool CompleteUserInfo(int id, CompleteUserInfoRequest user);
     bool SoftDeleteUser(int id, SoftDeleteUserRequest request);
