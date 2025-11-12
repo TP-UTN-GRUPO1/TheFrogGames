@@ -65,7 +65,7 @@ namespace Api.Controllers
             return NoContent();
         }
         [Authorize(Roles = $"{nameof(TypeRole.SysAdmin)},{nameof(TypeRole.Admin)}")]
-        [HttpPatch("{id}/notavailable")]
+        [HttpPost("{id}/softDelete")]
         public IActionResult SoftDelete(int id)
         {
             var request = new ParcialUpdateGameRequest { Id = id, Available = false };

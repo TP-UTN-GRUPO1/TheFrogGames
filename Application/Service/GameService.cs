@@ -61,7 +61,9 @@ namespace Application.Service
                 ImageUrl = game.ImageUrl,
                 Rating = game.Rating,
                 Available = game.Available,
-                Sold = game.Sold
+                Sold = game.Sold,
+                Platforms = game.Platforms.Select(p => p.Name).ToList(),
+                Genres = game.Genres.Select(ge => ge.Name).ToList()
             };
         }
 
@@ -81,7 +83,9 @@ namespace Application.Service
                 ImageUrl = g.ImageUrl,
                 Rating = g.Rating,
                 Available = g.Available,
-                Sold = g.Sold
+                Sold = g.Sold,
+                Platforms = g.Platforms.Select(p => p.Name).ToList(),
+                Genres = g.Genres.Select(ge => ge.Name).ToList()
             }).ToList();
         }
 
@@ -217,8 +221,6 @@ namespace Application.Service
             var existingGame = _gameRepo.GetById(id, trackChanges: true);
             if (existingGame == null)
                 throw new Exception($"Juego con ID {id} no encontrado.");
-
-         
 
             bool success = _gameRepo.Update(existingGame);
 
