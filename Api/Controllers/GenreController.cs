@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Contracts.Genre.Request;
 using Application.Service;
 using Contracts.Genre.Response;
-using Contracts.Order.Request;
+using Domain.Entities;
 
 namespace Api.Controllers
 {
@@ -24,6 +25,10 @@ namespace Api.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] CreateGenreRequest request)
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin))
+                return StatusCode(403, "No tienes permisos para crear géneros");
+
             try
             {
                 var newGenre = _genreService.CreateGenre(request);
@@ -40,6 +45,10 @@ namespace Api.Controllers
         [HttpPut]
         public IActionResult Update([FromBody] UpdateGenreRequest request)
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin))
+                return StatusCode(403, "No tienes permisos para modificar géneros");
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -62,6 +71,10 @@ namespace Api.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin))
+                return StatusCode(403, "No tienes permisos para eliminar géneros");
+
             if (id <= 0)
             {
                 return BadRequest("El ID del género debe ser positivo.");

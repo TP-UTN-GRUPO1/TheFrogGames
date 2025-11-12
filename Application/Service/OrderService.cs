@@ -20,7 +20,7 @@ public class OrderService : IOrderService
     public List<OrderResponse> GetOrders()
     {
         var orders = _orderRepo
-            .FindByCondition(o => !o.IsCancelled, trackChanges: false) // excluir canceladas
+            .FindByCondition(o => !o.IsCancelled, trackChanges: false)
             .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Game)
             .ToList();
@@ -97,11 +97,10 @@ public class OrderService : IOrderService
 
     public bool DeleteOrder(int id)
     {
-        // Borrado lógico: marcar como cancelada en lugar de eliminar
         var order = _orderRepo.GetById(id, trackChanges: true);
         if (order == null) return false;
 
-        if (order.IsCancelled) return true; // ya cancelada
+        if (order.IsCancelled) return true;
 
         order.IsCancelled = true;
         return _orderRepo.Update(order);

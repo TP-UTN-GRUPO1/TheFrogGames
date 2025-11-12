@@ -13,12 +13,25 @@ namespace Application.Service
         {
             _genreRepo = genreRepo;
         }
+
         public GenreResponse CreateGenre(CreateGenreRequest request)
         {
-            
+            if (request == null)
+                throw new ArgumentException("Solicitud inválida.");
+
+            var normalizedName = (request.Name ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(normalizedName))
+                throw new ArgumentException("El nombre del género no puede estar vacío.");
+
+            var exists = _genreRepo.GetAll()
+                .Any(g => g.Name.Equals(normalizedName, StringComparison.OrdinalIgnoreCase));
+
+            if (exists)
+                throw new InvalidOperationException($"Ya existe un género con el nombre '{normalizedName}'.");
+
             var genre = new Genre
             {
-                Name = request.Name
+                Name = normalizedName
             };
             bool success = _genreRepo.Create(genre);
 
@@ -47,14 +60,28 @@ namespace Application.Service
 
             return responseList;
         }
+
         public GenreResponse UpdateGenre(UpdateGenreRequest request)
         {
+            if (request == null)
+                throw new ArgumentException("Solicitud inválida.");
+
+            var newName = (request.NewName ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(newName))
+                throw new ArgumentException("El nuevo nombre del género no puede estar vacío.");
+
             var existingGenre = _genreRepo.GetById(request.Id, trackChanges: true);
             if (existingGenre == null)
             {
                 throw new Exception($"Género con ID {request.Id} no encontrado.");
             }
-            existingGenre.Name = request.NewName;
+            var conflict = _genreRepo.GetAll()
+                .Any(g => g.Id != request.Id && g.Name.Equals(newName, StringComparison.OrdinalIgnoreCase));
+
+            if (conflict)
+                throw new InvalidOperationException($"Ya existe otro género con el nombre '{newName}'.");
+
+            existingGenre.Name = newName;
             bool success = _genreRepo.Update(existingGenre);
             if (!success)
             {
@@ -65,9 +92,10 @@ namespace Application.Service
                 Id = existingGenre.Id,
                 Name = existingGenre.Name
             };
-            }
-            public bool DeleteGenre(int id)
-        { 
+        }
+
+        public bool DeleteGenre(int id)
+        {
             var genreToDelete = _genreRepo.GetById(id);
 
             if (genreToDelete == null)
@@ -78,5 +106,5 @@ namespace Application.Service
             return _genreRepo.Delete(genreToDelete);
         }
     }
-    }
+}
 

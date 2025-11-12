@@ -15,16 +15,28 @@ namespace Application.Service
         }
         public PlatformResponse CreatePlatform(CreatePlatformRequest request)
         {
+            if (request == null)
+                throw new ArgumentException("Solicitud inválida.");
+
+            var normalizedName = (request.Name ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(normalizedName))
+                throw new ArgumentException("El nombre de la plataforma no puede estar vacío.");
+
+            var exists = _platformRepo.GetAll()
+                .Any(p => p.Name.Equals(normalizedName, StringComparison.OrdinalIgnoreCase));
+
+            if (exists)
+                throw new InvalidOperationException($"Ya existe una plataforma con el nombre '{normalizedName}'.");
 
             var platform = new Platform
             {
-                Name = request.Name
+                Name = normalizedName
             };
             bool success = _platformRepo.Create(platform);
 
             if (!success)
             {
-                throw new ApplicationException("Error al crear el género en la base de datos.");
+                throw new ApplicationException("Error al crear la plataforma en la base de datos.");
             }
             var response = new PlatformResponse
             {
@@ -49,12 +61,26 @@ namespace Application.Service
         }
         public PlatformResponse UpdatePlatform(UpdatePlatformRequest request)
         {
+            if (request == null)
+                throw new ArgumentException("Solicitud inválida.");
+
+            var newName = (request.NewName ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(newName))
+                throw new ArgumentException("El nuevo nombre de la plataforma no puede estar vacío.");
+
             var existingPlatform = _platformRepo.GetById(request.Id, trackChanges: true);
             if (existingPlatform == null)
             {
                 throw new Exception($"Plataforma con ID {request.Id} no encontrado.");
             }
-            existingPlatform.Name = request.NewName;
+
+            var conflict = _platformRepo.GetAll()
+                .Any(p => p.Id != request.Id && p.Name.Equals(newName, StringComparison.OrdinalIgnoreCase));
+
+            if (conflict)
+                throw new InvalidOperationException($"Ya existe otra plataforma con el nombre '{newName}'.");
+
+            existingPlatform.Name = newName;
             bool success = _platformRepo.Update(existingPlatform);
             if (!success)
             {

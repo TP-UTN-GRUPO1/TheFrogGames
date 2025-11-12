@@ -130,6 +130,10 @@ namespace Api.Controllers
         {
             try
             {
+                var role = User.FindFirst(ClaimTypes.Role)?.Value;
+                if (role != nameof(TypeRole.SysAdmin) && role != nameof(TypeRole.Admin))
+                    return StatusCode(403, "No tienes permisos para eliminar órdenes");
+
                 var deleted = _orderService.DeleteOrder(id);
                 if (!deleted)
                     return NotFound(new { message = $"No se encontró la orden con id {id} para eliminar." });
