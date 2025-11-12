@@ -142,7 +142,7 @@ namespace Application.Service
                 .FirstOrDefault(g => g.Title.Equals(normalizedTitle, StringComparison.OrdinalIgnoreCase));
 
             if (existingGame != null)
-                throw new InvalidOperationException($"Ya existe un juego con el título '{normalizedTitle}'.");
+                throw new ArgumentException($"Ya existe un juego con el título '{normalizedTitle}'.");
 
            
             var existingGenres = _genreRepo.GetAll().ToList();
