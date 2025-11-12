@@ -2,6 +2,10 @@
 using Contracts.Game.Request;
 using Contracts.Game.Response;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 namespace Application.Service
 {
@@ -10,6 +14,9 @@ namespace Application.Service
         private readonly IGameRepository _gameRepo;
         private readonly IGenreRepository _genreRepo;
         private readonly IPlatformRepository _platformRepo;
+        
+
+   
 
         public GameService(IGameRepository gameRepo,
             IPlatformRepository platformRepo,
@@ -18,6 +25,7 @@ namespace Application.Service
             _gameRepo = gameRepo;
             _platformRepo =platformRepo;
             _genreRepo = genreRepo;
+    
         }
 
         public List<GameResponse> GetAll()
@@ -243,10 +251,35 @@ namespace Application.Service
             return true;
         }
 
-        public Task AddGamesAsync(IEnumerable<GameResponse> games, CancellationToken cancellationToken = default)
+        public async Task AddGamesAsync(IEnumerable<GameResponse> games, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            if (games == null || !games.Any())
+                throw new ArgumentException("La lista de juegos externos esta vacia.");
+
+            var existingGames = await _gameRepo.GetAllAsync(ct);
+
+            if (existingGames.Any())
+                throw new InvalidOperationException("La base de datos ya contiene juegos.");
+
+            var gameEntities = games.Select(g => new Game
+            {
+                Title = g.Title,
+                Developer = g.Developer,
+                ImageUrl = g.ImageUrl,
+                Price = g.Price,
+                Available = g.Available,
+                Rating = g.Rating,
+                Sold = g.Sold,
+                Genres = g.Genres?.Select(name => new Genre { Name = name }).ToList() ?? new List<Genre>(),
+                Platforms = g.Platforms?.Select(name => new Platform { Name = name }).ToList() ?? new List<Platform>()
+            }).ToList();
+
+            
+            await _gameRepo.AddRangeAsync(gameEntities, ct);
+            await _gameRepo.SaveChangesAsync();
+
         }
+
         public async Task<IEnumerable<GameResponse>> GetAllAsync(CancellationToken cancellationToken)
         {
             var games = await _gameRepo.GetAllAsync(cancellationToken);

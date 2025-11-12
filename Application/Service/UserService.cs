@@ -3,6 +3,7 @@ using Application.Helpers;
 using Contracts.User.Request;
 using Contracts.User.Response;
 using Domain.Entities;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Application.Service;
 
@@ -32,7 +33,13 @@ public class UserService : IUserService
     }
     public bool Create(CreateUserRequest user)
     {
+        if (_userRepository.UserEmailExist(user.Email))
+        {
+            return false;
+        }
+
         string hashedPassword = HashHelper.ComputeHash(user.Password);
+        
         var newUser = new User
         {
             Name = user.Name,
@@ -41,6 +48,7 @@ public class UserService : IUserService
             BirthDate = user.BirthDate,
             Password = hashedPassword,
             RoleId = 3
+            
         };
         return _userRepository.Create(newUser);
     }
