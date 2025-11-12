@@ -66,12 +66,12 @@ public class UserController : ControllerBase
     [HttpPatch("{id}")]
     public ActionResult CompleteUserInfo([FromRoute] int id, [FromBody] CompleteUserInfoRequest user)
     {
-        var role = User.FindFirst(ClaimTypes.Role)?.Value;
         var tokenUserId = User.FindFirst("idUser")?.Value;
-        if (role != nameof(TypeRole.SysAdmin) && role == nameof(TypeRole.Admin) && tokenUserId != id.ToString())
+        if (string.IsNullOrEmpty(tokenUserId) || tokenUserId != id.ToString())
         {
             return StatusCode(403, "No tenes permisos para editar otros usuarios");
         }
+
         var isUpdated = _userService.CompleteUserInfo(id, user);
 
         if (!isUpdated)
