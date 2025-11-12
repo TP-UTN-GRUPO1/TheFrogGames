@@ -254,16 +254,13 @@ namespace Application.Service
         public async Task AddGamesAsync(IEnumerable<GameResponse> games, CancellationToken ct = default)
         {
             if (games == null || !games.Any())
-                throw new ArgumentException("La lista de juegos externos esta vacia");
+                throw new ArgumentException("La lista de juegos externos esta vacia.");
 
-           
             var existingGames = await _gameRepo.GetAllAsync(ct);
 
-            
             if (existingGames.Any())
-                throw new InvalidOperationException("La base de datos ya contiene juegos.No se aplicara la importacion.");
+                throw new InvalidOperationException("La base de datos ya contiene juegos.");
 
-            
             var gameEntities = games.Select(g => new Game
             {
                 Title = g.Title,
@@ -277,14 +274,12 @@ namespace Application.Service
                 Platforms = g.Platforms?.Select(name => new Platform { Name = name }).ToList() ?? new List<Platform>()
             }).ToList();
 
-           
-            foreach (var game in gameEntities)
-            {
-                bool success = _gameRepo.Create(game);
-                if (!success)
-                    throw new ApplicationException($"Error al guardar el juego '{game.Title}' en la base de datos.");
-            }
+            
+            await _gameRepo.AddRangeAsync(gameEntities, ct);
+            await _gameRepo.SaveChangesAsync();
+
         }
+
         public async Task<IEnumerable<GameResponse>> GetAllAsync(CancellationToken cancellationToken)
         {
             var games = await _gameRepo.GetAllAsync(cancellationToken);

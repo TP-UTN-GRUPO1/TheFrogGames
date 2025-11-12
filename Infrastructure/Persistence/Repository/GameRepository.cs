@@ -40,6 +40,10 @@ namespace Infrastructure.Persistence.Repository
         {
             await _context.Games.AddAsync(game);
         }
+        public async Task AddRangeAsync(IEnumerable<Game> games, CancellationToken ct = default)
+        {
+            await _context.Games.AddRangeAsync(games, ct);
+        }
 
         public async Task SaveChangesAsync()
         {
