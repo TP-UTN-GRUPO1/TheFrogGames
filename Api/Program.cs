@@ -104,6 +104,7 @@ builder.Services.AddHttpClient<GamesFirebaseClient>("Firebase", (sp, client) =>
     var options = sp.GetRequiredService<IOptions<GamesApiOptions>>().Value;
     client.BaseAddress = new Uri(options.BaseUrl);
     client.Timeout = TimeSpan.FromSeconds(15);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("TheFrogGamesApp/1.0 (+https://thefroggames-aecyg0edbzgbcpbd.brazilsouth-01.azurewebsites.net/)");
 })
 // Polly
 .AddPolicyHandler(PollyPolicies.GetRetryPolicy())      // Reintenta 3 veces si falla
@@ -114,6 +115,7 @@ builder.Services.AddHttpClient(
     client =>
     {
         client.BaseAddress = new Uri("https://pokeapi.co/api/v2/");
+
     })
 .AddPolicyHandler(PollyPolicies.GetRetryPolicy())
 .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy());
