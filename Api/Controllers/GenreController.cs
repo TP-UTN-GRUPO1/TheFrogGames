@@ -83,7 +83,7 @@ namespace Api.Controllers
 
             if (success)
             {
-                return NoContent();
+                return Ok(new { message = "El género se ha eliminado correctamente." });
             }
             else
             {

@@ -8,4 +8,5 @@ public class UserResponse
     public DateOnly BirthDate { get; set; }
     public bool IsDeleted { get; set; }
     public int RoleId { get; set; }
+    public string? PokemonName { get; set; }
 }
