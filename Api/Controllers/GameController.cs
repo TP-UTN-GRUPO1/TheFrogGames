@@ -36,14 +36,29 @@ namespace Api.Controllers
         [HttpPost]
         public ActionResult Create([FromBody] CreateGameRequest game)
         {
-            var isCreated = _gameService.Create(game);
 
-            if (!isCreated)
+            try
             {
-                return Conflict("Error al crear el producto");
+                var isCreated = _gameService.Create(game);
+
+                if (!isCreated)
+                    return Conflict("Error al crear el juego");
+
+                return Ok("Juego creado!");
+            }
+            catch (ArgumentException ex) // faltan campos 
+            {
+                return BadRequest(new {message = ex.Message});
+            }
+            catch (ApplicationException ex) // error del sv
+            {
+                return StatusCode(500,new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)  // ya tiene titulo
+            {
+                return Conflict(new { message = ex.Message });
             }
 
-            return Ok();
         }
 
         [HttpGet("{id}")]
