@@ -120,7 +120,10 @@ builder.Services.AddHttpClient(
 .AddPolicyHandler(PollyPolicies.GetRetryPolicy())
 .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy());
 
-
+builder.Services.AddHttpClient<IPaymentMercadoPago, MercadoPagoService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:3000"); // sv Node
+});
 
 builder.Services.AddScoped<IExternalGameService, GamesFromFirebaseService>();
 
