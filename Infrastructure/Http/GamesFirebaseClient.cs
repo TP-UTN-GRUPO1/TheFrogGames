@@ -23,7 +23,7 @@ namespace Infrastructure.Http
             }
             catch (Exception ex)
             {
-                // Polly ya reintentará, pero logueamos para debug
+                
                 Console.WriteLine($"[Firebase] Error al obtener juegos: {ex.Message}");
                 return Enumerable.Empty<GameResponse>();
             }
