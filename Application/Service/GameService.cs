@@ -49,7 +49,8 @@ namespace Application.Service
 
         public GameResponse? GetGameById(int id)
         {
-            var game = _gameRepo.GetById(id);
+            // GetAll() incluye Genres y Platforms en GameRepository
+            var game = _gameRepo.GetAll().FirstOrDefault(g => g.Id == id);
             if (game == null) return null;
 
             return new GameResponse
@@ -61,7 +62,9 @@ namespace Application.Service
                 ImageUrl = game.ImageUrl,
                 Rating = game.Rating,
                 Available = game.Available,
-                Sold = game.Sold
+                Sold = game.Sold,
+                Platforms = game.Platforms?.Select(p => p.Name).ToList() ?? new List<string>(),
+                Genres = game.Genres?.Select(ge => ge.Name).ToList() ?? new List<string>()
             };
         }
 
