@@ -94,6 +94,8 @@ builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
 builder.Services.AddScoped<IPokemonService, PokemonService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<IFavoriteRepository, FavoritesRepository>();
 
 builder.Services.Configure<GamesApiOptions>(
     builder.Configuration.GetSection("GamesApiOptions"));
