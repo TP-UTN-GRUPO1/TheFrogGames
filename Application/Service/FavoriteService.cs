@@ -3,6 +3,7 @@ using Contracts.Favorites.Request;
 using Contracts.Favorites.Response;
 using Domain.Entities;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 
 namespace Application.Service;
 
@@ -42,5 +43,17 @@ public class FavoriteService : IFavoriteService
             ImageUrl = f.Game.ImageUrl,
             Price = f.Game.Price
         }).ToList();
+    }
+
+
+    public async Task<bool> DeleteFavorite(int userId, int gameId)
+    {
+        var favorite = await _favoritesRepository.Get(userId, gameId);
+
+        if (favorite == null)
+            return false;
+
+        await _favoritesRepository.Delete(favorite);
+        return true;
     }
 }
