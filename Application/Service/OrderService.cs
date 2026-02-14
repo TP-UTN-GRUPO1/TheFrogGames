@@ -116,9 +116,17 @@ public class OrderService : IOrderService
             Total = order.TotalAmount,
             Items = order.OrderItems.Select(i => new OrderItemResponse
             {
+                GameId = i.GameId,
                 GameTitle = i.Game?.Title,
+                Developer = i.Game?.Developer,
+                ImageUrl = i.Game?.ImageUrl,
+                Price = i.Game?.Price ?? 0,
+                Rating = i.Game?.Rating ?? 0,
+                Available = i.Game?.Available ?? false,
+                Sold = i.Game?.Sold ?? 0,
                 Quantity = i.Quantity,
-                UnitPrice = i.UnitPrice
+                UnitPrice = i.UnitPrice,
+                Subtotal = i.Subtotal
             }).ToList(),
             IsCancelled = order.IsCancelled
         };
