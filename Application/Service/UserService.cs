@@ -116,11 +116,18 @@ public class UserService : IUserService
 
     public bool ChangeRole(int id, ChangeRoleRequest request)
     {
-        var user = _userRepository.GetById(id);
+        // Validar que el RoleId sea válido (1, 2 o 3)
+        if (request.RoleId < 1 || request.RoleId > 3)
+        {
+            throw new ArgumentException($"El RoleId {request.RoleId} no es válido. Los roles válidos son: 1 (SysAdmin), 2 (Admin), 3 (User).");
+        }
+
+        var user = _userRepository.GetById(id, trackChanges: true);
         if (user == null)
         {
             return false;
         }
+        
         user.RoleId = request.RoleId;
         return _userRepository.Update(user);
     }
