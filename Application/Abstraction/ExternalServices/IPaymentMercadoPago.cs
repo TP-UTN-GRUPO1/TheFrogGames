@@ -1,4 +1,7 @@
-﻿using Contracts.MercadoPago.Response;
+﻿
+using Contracts.MercadoPago.Request;
+using Contracts.MercadoPago.Response;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

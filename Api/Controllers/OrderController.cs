@@ -1,9 +1,10 @@
-﻿using System.Security.Claims;
+﻿using Application.Abstraction.ExternalServices;
+using Contracts.Order.Request;
+using Contracts.Responses;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Contracts.Responses;
-using Contracts.Order.Request;
-using Domain.Entities;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -13,11 +14,16 @@ namespace Api.Controllers
     [Authorize]
     public class OrdersController : ControllerBase
     {
+        private readonly IMercadoPagoQueryService _mercadoPagoQueryService;
+
         private readonly IOrderService _orderService;
 
-        public OrdersController(IOrderService orderService)
+        public OrdersController(
+         IOrderService orderService,
+         IMercadoPagoQueryService mercadoPagoQueryService)
         {
             _orderService = orderService;
+            _mercadoPagoQueryService = mercadoPagoQueryService;
         }
 
         [HttpGet]
@@ -85,9 +91,8 @@ namespace Api.Controllers
 
             return Ok(dto);
         }
-
         [HttpPost]
-        public ActionResult Create([FromBody] CreateOrderRequest request)
+        public async Task<ActionResult> Create([FromBody] CreateOrderRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -108,12 +113,13 @@ namespace Api.Controllers
 
             try
             {
-                var newOrderResponse = _orderService.CreateOrder(request, tokenUserId);
+                var newOrderResponse = await _orderService.CreateOrder(request, tokenUserId);
 
                 if (newOrderResponse == null)
                 {
-                    return BadRequest(new { message ="No se pudo crear la orden." });
+                    return BadRequest(new { message = "No se pudo crear la orden." });
                 }
+
                 return CreatedAtAction(
                     nameof(Get),
                     new { id = newOrderResponse.Id },
@@ -144,6 +150,22 @@ namespace Api.Controllers
             {
                 return BadRequest(new { error = ex.Message });
             }
+        }
+        [AllowAnonymous]
+        [HttpGet("verify")]
+        public async Task<IActionResult> VerifyPayment([FromQuery] string paymentId)
+        {
+            if (string.IsNullOrEmpty(paymentId))
+                return BadRequest();
+
+            var payment = await _mercadoPagoQueryService.GetPaymentAsync(paymentId);
+
+            if (payment.Status == "approved")
+            {
+                return Ok(new { approved = true });
+            }
+
+            return Ok(new { approved = false });
         }
     }
 

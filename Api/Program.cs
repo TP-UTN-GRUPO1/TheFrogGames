@@ -73,6 +73,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(nameof(TypeRole.SysAdmin), policy => policy.RequireRole(nameof(TypeRole.SysAdmin)));
@@ -94,10 +95,25 @@ builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
 builder.Services.AddScoped<IPokemonService, PokemonService>();
+<<<<<<< Updated upstream
+=======
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<IFavoriteRepository, FavoritesRepository>();
+builder.Services.AddHttpClient<IMercadoPagoQueryService, MercadoPagoQueryService>();
+
+
+
+>>>>>>> Stashed changes
 
 builder.Services.Configure<GamesApiOptions>(
     builder.Configuration.GetSection("GamesApiOptions"));
 
+builder.Services.AddHttpClient<IMercadoPagoQueryService, MercadoPagoQueryService>();
+
+builder.Services.AddHttpClient<IMercadoPagoService, MercadoPagoService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:3000/");
+});
 
 builder.Services.AddHttpClient<GamesFirebaseClient>("Firebase", (sp, client) =>
 {
@@ -120,10 +136,7 @@ builder.Services.AddHttpClient(
 .AddPolicyHandler(PollyPolicies.GetRetryPolicy())
 .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy());
 
-builder.Services.AddHttpClient<IPaymentMercadoPago, MercadoPagoService>(client =>
-{
-    client.BaseAddress = new Uri("http://localhost:3000"); // sv Node
-});
+
 
 builder.Services.AddScoped<IExternalGameService, GamesFromFirebaseService>();
 
