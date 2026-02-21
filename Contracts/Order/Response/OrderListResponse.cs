@@ -9,5 +9,6 @@
 
         public List<OrderItemResponse> Items { get; set; } = new List<OrderItemResponse>();
         public bool IsCancelled { get; set; } = false;
+        public string CheckoutUrl { get; set; }
     }
 }

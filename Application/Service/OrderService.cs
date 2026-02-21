@@ -1,22 +1,27 @@
-﻿using System.Globalization;
-using Microsoft.EntityFrameworkCore;
-using Application.Abstraction;
-using Contracts.Responses;
+﻿using Application.Abstraction;
+using Application.Abstraction.ExternalServices;
+using Contracts.MercadoPago.Request;
 using Contracts.Order.Request;
+using Contracts.Responses;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepo;
     private readonly IGameRepository _gameRepo;
+    private readonly IMercadoPagoService _mercadoPagoService;
 
-    public OrderService(IOrderRepository orderRepo,
-                        IGameRepository gameRepo)
+    public OrderService(
+        IOrderRepository orderRepo,
+        IGameRepository gameRepo,
+        IMercadoPagoService mercadoPagoService)
     {
         _orderRepo = orderRepo;
         _gameRepo = gameRepo;
+        _mercadoPagoService = mercadoPagoService;
     }
-
     public List<OrderResponse> GetOrders()
     {
         var orders = _orderRepo
@@ -28,7 +33,7 @@ public class OrderService : IOrderService
         return orders.Select(MapToOrderResponse).ToList();
     }
 
-    public OrderResponse? CreateOrder(CreateOrderRequest request, int userId)
+    public async Task<OrderResponse?> CreateOrder(CreateOrderRequest request, int userId)
     {
         var gameIds = request.Items.Select(i => i.GameId).ToList();
         var gamePrices = _gameRepo.GetPricesByIds(gameIds);
@@ -79,7 +84,25 @@ public class OrderService : IOrderService
         var createdOrder = _orderRepo.GetOrderWithItems(order.Id, trackChanges: false);
         if (createdOrder == null) return null;
 
-        return MapToOrderResponse(createdOrder);
+       
+        var preferenceRequest = new CreatePreferenceRequest
+        {
+            Items = createdOrder.OrderItems.Select(i => new MPItem
+            {
+                Title = i.Game?.Title ?? "Game",
+                Quantity = i.Quantity,
+                UnitPrice = i.UnitPrice
+            }).ToList()
+        };
+
+        var checkout = await _mercadoPagoService.CreatePreferenceAsync(preferenceRequest);
+
+        var response = MapToOrderResponse(createdOrder);
+
+        
+        response.CheckoutUrl = checkout.CheckoutUrl;
+
+        return response;
     }
 
     public OrderResponse? GetOrderById(int id)
