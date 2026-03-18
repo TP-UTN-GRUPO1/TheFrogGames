@@ -6,4 +6,5 @@ public class FavoriteResponse
     public string Title { get; set; }
     public string ImageUrl { get; set; }
     public decimal Price { get; set; }
+    public bool Available { get; set; }
 }

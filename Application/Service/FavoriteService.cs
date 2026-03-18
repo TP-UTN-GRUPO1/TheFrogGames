@@ -41,7 +41,8 @@ public class FavoriteService : IFavoriteService
             GameId = f.GameId,
             Title = f.Game.Title,
             ImageUrl = f.Game.ImageUrl,
-            Price = f.Game.Price
+            Price = f.Game.Price,
+            Available = f.Game.Available
         }).ToList();
     }
 
