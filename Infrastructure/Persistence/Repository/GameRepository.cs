@@ -22,6 +22,20 @@ namespace Infrastructure.Persistence.Repository
                 .AsNoTrackingWithIdentityResolution()
                 .ToList();
         }
+
+        public Game? GetByIdWithRelations(int id, bool trackChanges = false)
+        {
+            var query = _context.Games
+                .Include(g => g.Genres)
+                .Include(g => g.Platforms)
+                .AsQueryable();
+
+            if (!trackChanges)
+                query = query.AsNoTracking();
+
+            return query.FirstOrDefault(g => g.Id == id);
+        }
+
         public async Task<Game?> GetByIdAsync(int id)
         {
             return await _context.Games.FirstOrDefaultAsync(g => g.Id == id);

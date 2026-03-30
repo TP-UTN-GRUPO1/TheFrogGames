@@ -2,10 +2,6 @@
 using Contracts.Game.Request;
 using Contracts.Game.Response;
 using Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System;
 
 namespace Application.Service
 {
@@ -49,7 +45,6 @@ namespace Application.Service
 
         public GameResponse? GetGameById(int id)
         {
-            // GetAll() incluye Genres y Platforms en GameRepository
             var game = _gameRepo.GetAll().FirstOrDefault(g => g.Id == id);
             if (game == null) return null;
 
@@ -195,7 +190,7 @@ namespace Application.Service
 
         public bool Update(int id, CreateGameRequest request)
         {
-            var existingGame = _gameRepo.GetById(id, trackChanges: true);
+            var existingGame = _gameRepo.GetByIdWithRelations(id, trackChanges: true);
             if (existingGame == null)
                 throw new Exception($"Juego con ID {id} no encontrado.");
 
@@ -206,6 +201,32 @@ namespace Application.Service
             existingGame.Rating = request.Rating;
             existingGame.Available = request.Available;
             existingGame.Sold = request.Sold;
+
+            var existingGenres = _genreRepo.GetAll(trackChanges: true).ToList();
+            existingGame.Genres.Clear();
+            if (request.Genres != null)
+            {
+                foreach (var genreName in request.Genres.Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    var genre = existingGenres
+                        .FirstOrDefault(g => g.Name.Equals(genreName, StringComparison.OrdinalIgnoreCase))
+                        ?? new Genre { Name = genreName };
+                    existingGame.Genres.Add(genre);
+                }
+            }
+
+            var existingPlatforms = _platformRepo.GetAll(trackChanges: true).ToList();
+            existingGame.Platforms.Clear();
+            if (request.Platforms != null)
+            {
+                foreach (var platformName in request.Platforms.Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    var platform = existingPlatforms
+                        .FirstOrDefault(p => p.Name.Equals(platformName, StringComparison.OrdinalIgnoreCase))
+                        ?? new Platform { Name = platformName };
+                    existingGame.Platforms.Add(platform);
+                }
+            }
 
             bool success = _gameRepo.Update(existingGame);
 
@@ -235,7 +256,7 @@ namespace Application.Service
         {
             var gameToDelete = _gameRepo.GetById(id);
             if (gameToDelete == null)
-                return true; // nada que borrar
+                return true; 
 
             return _gameRepo.Delete(gameToDelete);
         }

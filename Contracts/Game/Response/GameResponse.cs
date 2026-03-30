@@ -15,10 +15,7 @@ namespace Contracts.Game.Response
         public Boolean Available { get; set; }
         public float Rating { get; set; }
         public int Sold { get; set; }
-        [JsonPropertyName("platform")]
         public List<string> Platforms { get; set; } = new();
-
-        [JsonPropertyName("genre")]
         public List<string> Genres { get; set; } = new();
         
     }
