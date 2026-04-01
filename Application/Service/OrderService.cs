@@ -44,7 +44,7 @@ public class OrderService : IOrderService
         var order = new Order
         {
             UserId = userId,
-            OrderDate = DateTime.UtcNow,
+            OrderDate = DateTime.Now,
             TotalAmount = 0m,
         };
 
