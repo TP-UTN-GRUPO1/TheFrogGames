@@ -106,7 +106,7 @@ builder.Services.AddHttpClient<IMercadoPagoQueryService, MercadoPagoQueryService
 
 builder.Services.AddHttpClient<IMercadoPagoService, MercadoPagoService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:3000/");
+    client.BaseAddress = new Uri("https://api.mercadopago.com/");
 });
 
 builder.Services.AddHttpClient<GamesFirebaseClient>("Firebase", (sp, client) =>

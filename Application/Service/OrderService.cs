@@ -85,7 +85,7 @@ public class OrderService : IOrderService
         if (createdOrder == null) return null;
 
        
-        var preferenceRequest = new CreatePreferenceRequest
+        var preferenceRequest = new MPCheckoutPayload
         {
             Items = createdOrder.OrderItems.Select(i => new MPItem
             {
@@ -95,7 +95,7 @@ public class OrderService : IOrderService
             }).ToList()
         };
 
-        var checkout = await _mercadoPagoService.CreatePreferenceAsync(preferenceRequest);
+        var checkout = await _mercadoPagoService.CreateCheckoutAsync(preferenceRequest);
 
         var response = MapToOrderResponse(createdOrder);
 

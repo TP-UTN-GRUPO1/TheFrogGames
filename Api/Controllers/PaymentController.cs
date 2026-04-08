@@ -18,11 +18,11 @@ namespace Api.Controllers
         }
 
         [HttpPost("create-preference")]
-        public async Task<IActionResult> CreatePreference([FromBody] CreatePreferenceRequest request)
+        public async Task<IActionResult> CreatePreference([FromBody] MPCheckoutPayload payload)
         {
-            var preference = await _mercadoPagoService.CreatePreferenceAsync(request);
+            var preference = await _mercadoPagoService.CreateCheckoutAsync(payload);
 
-            return Ok(new { initPoint = preference.CheckoutUrl });
+            return Ok(preference);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace Application.Abstraction.ExternalServices
 {
     public interface IMercadoPagoService
     {
-        Task<CheckoutResponse> CreatePreferenceAsync(CreatePreferenceRequest request);
+        
+        Task<CheckoutResponse> CreateCheckoutAsync(MPCheckoutPayload payload);
     }
 }
